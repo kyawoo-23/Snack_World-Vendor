@@ -9,11 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.4.0",
     "@ant-design/nextjs-registry": "^1.0.0",
     "antd": "^5.19.3",
     "next": "14.2.5",
+    "nextjs-toploader": "^1.6.12",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "usehooks-ts": "^3.1.0"
   },
   "devDependencies": {
     "@types/node": "^20",
