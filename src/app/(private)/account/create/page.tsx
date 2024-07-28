@@ -1,4 +1,4 @@
-import AccountCreateForm from "@/components/ClientForm/AccountCreateForm";
+import AccountCreateForm from "@/components/pages/account/AccountCreateForm";
 import MainLayout from "@/components/Layout/MainLayout";
 import { VendorUserRole } from "@/prisma-types";
 import { axiosAPI } from "@/utils/api/config";

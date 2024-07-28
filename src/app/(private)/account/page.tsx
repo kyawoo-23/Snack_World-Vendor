@@ -1,7 +1,16 @@
 import MainLayout from "@/components/Layout/MainLayout";
+import AccountList from "@/components/pages/account/AccountList";
+import { VendorUser } from "@/prisma-types";
+import { axiosAPI } from "@/utils/api/config";
+import { BaseResponse } from "@/utils/constants/response.type";
+
 import React from "react";
 
-export default function page() {
+export default async function page() {
+  const {
+    data: { data: users },
+  } = await axiosAPI.get<BaseResponse<VendorUser[]>>("/vendor-user");
+
   return (
     <MainLayout
       title='Account'
@@ -10,7 +19,7 @@ export default function page() {
         href: "/account/create",
       }}
     >
-      <div></div>
+      <AccountList data={users} />
     </MainLayout>
   );
 }
