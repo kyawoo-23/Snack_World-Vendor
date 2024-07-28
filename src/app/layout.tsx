@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Layout } from "antd";
+import { App, Layout } from "antd";
 
 import NextTopLoader from "nextjs-toploader";
 
@@ -21,15 +21,20 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body className={inter.className}>
-        <NextTopLoader />
+        <NextTopLoader color='#1676FE' />
         <AntdRegistry>
-          <Layout
-            style={{
-              minHeight: "100vh",
-            }}
+          <App
+            message={{ maxCount: 1, duration: 1.5 }}
+            notification={{ placement: "topRight" }}
           >
-            {children}
-          </Layout>
+            <Layout
+              style={{
+                minHeight: "100vh",
+              }}
+            >
+              {children}
+            </Layout>
+          </App>
         </AntdRegistry>
       </body>
     </html>
