@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Menu, MenuProps } from "antd";
 import Sider from "antd/es/layout/Sider";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { getLocalStorage, setLocalStorage } from "@/utils/shared/local-storage";
 import { LOCAL_STORAGE } from "@/utils/constants/local-storage.type";
 import SkeletonButton from "antd/es/skeleton/Button";
@@ -12,8 +13,12 @@ import { LuUsers2, LuBox } from "react-icons/lu";
 import { TbTruckDelivery } from "react-icons/tb";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import Image from "next/image";
+import { IoCartOutline } from "react-icons/io5";
 
-type MenuItem = Required<MenuProps>["items"][number];
+type MenuItem = Required<MenuProps>["items"][number] & {
+  link?: string;
+  children?: MenuItem[];
+};
 
 function getItem(
   label: React.ReactNode,
@@ -27,6 +32,7 @@ function getItem(
     icon,
     children,
     label: link ? <Link href={link}>{label}</Link> : label,
+    link,
   } as MenuItem;
 }
 
@@ -34,10 +40,11 @@ const items: MenuItem[] = [
   getItem("Orders", "1", "/order", <FaRegFileLines />),
   getItem("Accounts", "2", "/account", <LuUsers2 />),
   getItem("Products", "3", "/product", <LuBox />),
-  getItem("Delivery", "4", "/delivery", <TbTruckDelivery />),
-  getItem("Report", "5", "", <HiOutlineDocumentReport />, [
-    getItem("Sales", "5.1", "/sales"),
-    getItem("Stock", "5.2", "/stock"),
+  getItem("Purchase", "4", "/purchase", <IoCartOutline />),
+  getItem("Delivery", "5", "/delivery", <TbTruckDelivery />),
+  getItem("Report", "6", undefined, <HiOutlineDocumentReport />, [
+    getItem("Sales", "6.1", "/sales"),
+    getItem("Stock", "6.2", "/stock"),
   ]),
 ];
 
@@ -46,10 +53,33 @@ export default function SideBar() {
   const [collapsed, setCollapsed] = useState(
     getLocalStorage(LOCAL_STORAGE.IS_SIDEBAR_COLLAPSED) === "true"
   );
+  const currentRoute = usePathname();
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const getSelectedKeys = () => {
+    const findMatchingItem = (
+      items: MenuItem[],
+      route: string
+    ): string | undefined => {
+      for (const item of items) {
+        if (item.link && route.startsWith(item.link)) {
+          return item.key as string;
+        }
+        if (item.children) {
+          const matchingChildKey = findMatchingItem(item.children, route);
+          if (matchingChildKey) {
+            return matchingChildKey;
+          }
+        }
+      }
+      return undefined;
+    };
+
+    return [findMatchingItem(items, currentRoute) || "1"];
+  };
 
   if (!isClient) {
     return (
@@ -96,7 +126,7 @@ export default function SideBar() {
 
       <Menu
         theme='dark'
-        defaultSelectedKeys={["1"]}
+        selectedKeys={getSelectedKeys()}
         mode='inline'
         items={items}
       />
