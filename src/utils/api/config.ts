@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 
 // Create an instance of Axios with default configuration
 export const axiosAPI = axios.create({
-  baseURL: process.env.BASE_URL,
+  baseURL: process.env.NEXT_PUBLIC_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -11,7 +11,7 @@ export const axiosAPI = axios.create({
 axiosAPI.interceptors.request.use(
   (config) => {
     config.headers["Authorization"] = `Bearer `;
-    console.log("Config: ", config);
+    // console.log("Config: ", config);
     return config;
   },
   (error) => {

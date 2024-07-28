@@ -1,7 +1,10 @@
 "use client";
 
+import { createAccount } from "@/actions/account.action";
 import { VendorUserRole } from "@/prisma-types";
-import { Button, Flex, Form, FormProps, Input, Select, Space } from "antd";
+import { App, Button, Flex, Form, FormProps, Input, Select } from "antd";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 
 type Props = {
   roles: VendorUserRole[];
@@ -13,13 +16,28 @@ type FieldType = {
   vendorUserRoleId: string;
 };
 
-// 1486e0a9-3629-48d6-a597-bdfd6d31b783
-
 export default function AccountCreateForm({ roles }: Props) {
+  const router = useRouter();
+  const { notification } = App.useApp();
+  const [isPending, startSubmission] = useTransition();
   const [form] = Form.useForm();
 
-  const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
-    console.log("Success:", values);
+  const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
+    const request = {
+      ...values,
+      vendorId: "4725b046-de62-47fb-9093-269b73c43df2",
+    };
+
+    startSubmission(async () => {
+      const res = await createAccount(request);
+      if (res.isSuccess) {
+        notification.success({ message: res.message });
+        form.resetFields();
+        router.push("/account");
+      } else {
+        notification.error({ message: res.message });
+      }
+    });
   };
 
   const onReset = () => {
@@ -76,7 +94,7 @@ export default function AccountCreateForm({ roles }: Props) {
           <Button htmlType='button' onClick={onReset}>
             Reset
           </Button>
-          <Button type='primary' htmlType='submit'>
+          <Button type='primary' htmlType='submit' loading={isPending}>
             Submit
           </Button>
         </Flex>
