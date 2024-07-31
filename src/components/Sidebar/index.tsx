@@ -115,7 +115,7 @@ export default function SideBar() {
     >
       <figure className='flex justify-center w-full'>
         <Image
-          objectFit='cover'
+          className='object-cover'
           src='/assets/logo/SNACK_WORLD_DARK.png'
           alt='SNACK WORLD'
           width={70}
