@@ -26,7 +26,7 @@ export type Announcement = {
     content: string,
     image: string,
     type: string,
-    createAt: Date,
+    createdAt: Date,
     updatedAt: Date,
     announcementVendor: AnnouncementVendor[],
     announcementCustomer: AnnouncementCustomer[],
@@ -47,7 +47,7 @@ export type Admin = {
     isActive: boolean,
     adminRole: AdminRole,
     delivery: Delivery[],
-    createAt: Date,
+    createdAt: Date,
     updatedAt: Date,
 }
 
@@ -56,7 +56,7 @@ export type Variant = {
     name: string,
     color: string,
     productVariant: ProductVariant[],
-    createAt: Date,
+    createdAt: Date,
     updatedAt: Date,
 }
 
@@ -77,7 +77,7 @@ export type Delivery = {
     deliveryCode: string,
     deliveryStatus: string,
     deliveryName: string,
-    createAt: Date,
+    createdAt: Date,
     updatedAt: Date,
     completeAt: Date,
     adminId: string,
@@ -89,7 +89,7 @@ export type Category = {
     categoryId: string,
     name: string,
     product: Product[],
-    createAt: Date,
+    createdAt: Date,
     updatedAt: Date,
 }
 
@@ -98,7 +98,7 @@ export type ProductImage = {
     image: string,
     productId: string,
     product: Product,
-    createAt: Date,
+    createdAt: Date,
     updatedAt: Date,
 }
 
@@ -113,7 +113,7 @@ export type VendorUser = {
     vendorUserRole: VendorUserRole,
     vendor: Vendor,
     vendorPurchase: VendorPurchase[],
-    createAt: Date,
+    createdAt: Date,
     updatedAt: Date,
 }
 
@@ -123,7 +123,7 @@ export type Vendor = {
     image: string,
     email: string,
     isActive: boolean,
-    createAt: Date,
+    createdAt: Date,
     updatedAt: Date,
     product: Product[],
     customerOrderVendor: CustomerOrderVendor[],
@@ -136,15 +136,15 @@ export type Customer = {
     name: string,
     email: string,
     password: string,
-    image: string,
-    phone: string,
-    address: string,
+    image?: string,
+    phone?: string,
+    address?: string,
     announcementCustomer: AnnouncementCustomer[],
     wishListProduct: WishListProduct[],
     cartProduct: CartProduct[],
     customerOrder: CustomerOrder[],
     customerOrderVendor: CustomerOrderVendor[],
-    createAt: Date,
+    createdAt: Date,
     updatedAt: Date,
 }
 
@@ -158,7 +158,7 @@ export type PurchaseProduct = {
     product: Product,
     vendorPurchaseId: string,
     vendorPurchase: VendorPurchase,
-    createAt: Date,
+    createdAt: Date,
     updatedAt: Date,
 }
 
@@ -185,7 +185,7 @@ export type VendorPurchase = {
     vendorUserId: string,
     vendorUser: VendorUser,
     purchaseProduct: PurchaseProduct[],
-    createAt: Date,
+    createdAt: Date,
     updatedAt: Date,
 }
 
@@ -209,7 +209,7 @@ export type CustomerOrder = {
     deliveryAddress: string,
     deliveryMethod: string,
     customerId: string,
-    createAt: Date,
+    createdAt: Date,
     updatedAt: Date,
     customer: Customer,
     customerOrderVendor: CustomerOrderVendor[],
@@ -266,7 +266,7 @@ export type Product = {
     weight: number,
     price: number,
     promotion: boolean,
-    promotionPrice: number,
+    promotionPrice?: number,
     stock: number,
     isActive: boolean,
     vendorId: string,
@@ -279,6 +279,6 @@ export type Product = {
     wishListProduct: WishListProduct[],
     cartProduct: CartProduct[],
     customerOrderVendorProduct: CustomerOrderVendorProduct[],
-    createAt: Date,
+    createdAt: Date,
     updatedAt: Date,
 }

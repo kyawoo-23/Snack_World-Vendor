@@ -21,7 +21,7 @@ axiosAPI.interceptors.request.use(
 
 axiosAPI.interceptors.response.use(
   (response: AxiosResponse) => {
-    console.log("Success:", response);
+    // console.log("Success:", response);
     return response;
   },
   (error: AxiosError) => {

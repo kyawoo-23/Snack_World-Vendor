@@ -2,6 +2,7 @@
 
 import { createAccount } from "@/actions/account.action";
 import { VendorUserRole } from "@/prisma-types";
+import { TAccountCreateRequest } from "@/utils/models/account.model";
 import { App, Button, Flex, Form, FormProps, Input, Select } from "antd";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -10,22 +11,18 @@ type Props = {
   roles: VendorUserRole[];
 };
 
-type FieldType = {
-  name: string;
-  email: string;
-  vendorUserRoleId: string;
-};
-
 export default function AccountCreateForm({ roles }: Props) {
   const router = useRouter();
   const { notification } = App.useApp();
   const [isPending, startSubmission] = useTransition();
   const [form] = Form.useForm();
 
-  const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
+  const onFinish: FormProps<TAccountCreateRequest>["onFinish"] = async (
+    values
+  ) => {
     const request = {
       ...values,
-      vendorId: "4725b046-de62-47fb-9093-269b73c43df2",
+      vendorId: process.env.NEXT_PUBLIC_VENDOR_ID,
     };
 
     startSubmission(async () => {
@@ -45,7 +42,7 @@ export default function AccountCreateForm({ roles }: Props) {
   };
 
   return (
-    <Form<FieldType>
+    <Form<TAccountCreateRequest>
       form={form}
       name='account'
       layout='vertical'
@@ -53,7 +50,7 @@ export default function AccountCreateForm({ roles }: Props) {
       autoComplete='off'
       style={{ maxWidth: "480px" }}
     >
-      <Form.Item<FieldType>
+      <Form.Item<TAccountCreateRequest>
         label='Name'
         name='name'
         rules={[{ required: true, message: "Please input name!" }]}
@@ -61,7 +58,7 @@ export default function AccountCreateForm({ roles }: Props) {
         <Input />
       </Form.Item>
 
-      <Form.Item<FieldType>
+      <Form.Item<TAccountCreateRequest>
         label='Email'
         name='email'
         rules={[
@@ -72,7 +69,7 @@ export default function AccountCreateForm({ roles }: Props) {
         <Input />
       </Form.Item>
 
-      <Form.Item<FieldType>
+      <Form.Item<TAccountCreateRequest>
         label='Role'
         name='vendorUserRoleId'
         rules={[{ required: true, message: "Please select role!" }]}
