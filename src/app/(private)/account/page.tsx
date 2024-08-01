@@ -19,7 +19,7 @@ export default async function page() {
         href: "/account/create",
       }}
     >
-      <AccountList data={users} />
+      <AccountList data={users ?? []} />
     </MainLayout>
   );
 }

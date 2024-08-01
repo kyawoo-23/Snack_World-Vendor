@@ -11,7 +11,7 @@ export default async function page() {
 
   return (
     <MainLayout title='Create new account'>
-      <AccountCreateForm roles={roles} />
+      <AccountCreateForm roles={roles ?? []} />
     </MainLayout>
   );
 }

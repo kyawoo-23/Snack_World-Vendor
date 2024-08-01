@@ -10,4 +10,4 @@ interface ResponseWithData<T> extends ResponseWithMessage {
 
 export type BaseResponse<T = void> = T extends void
   ? ResponseWithMessage
-  : ResponseWithData<T>;
+  : ResponseWithMessage & Partial<ResponseWithData<T>>;
