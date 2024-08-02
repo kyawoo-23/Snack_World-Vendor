@@ -9,17 +9,17 @@ export const get = async <T>(
   return data;
 };
 
-export const post = async <T>(
+export const post = async <T, R = void>(
   endpoint: string,
-  body?: any
+  body?: R
 ): Promise<BaseResponse<T>> => {
   const { data } = await axiosAPI.post<BaseResponse<T>>(endpoint, body);
   return data;
 };
 
-export const patch = async <T>(
+export const patch = async <T, R = void>(
   endpoint: string,
-  body?: any
+  body?: R
 ): Promise<BaseResponse<T>> => {
   const { data } = await axiosAPI.patch<BaseResponse<T>>(endpoint, body);
   return data;

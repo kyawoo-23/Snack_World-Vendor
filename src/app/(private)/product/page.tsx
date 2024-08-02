@@ -1,7 +1,11 @@
-import ProductCreateForm from "@/components/pages/product/ProductCreateForm";
 import MainLayout from "@/components/Layout/MainLayout";
+import ProductList from "@/components/pages/product/ProductList";
+import { Product } from "@/prisma-types";
+import { get } from "@/utils/api";
 
-export default function page() {
+export default async function page() {
+  const { data: products } = await get<Product[]>("/product");
+
   return (
     <MainLayout
       title='Products'
@@ -10,7 +14,7 @@ export default function page() {
         href: "/product/create",
       }}
     >
-      <div></div>
+      <ProductList products={products ?? []} />
     </MainLayout>
   );
 }

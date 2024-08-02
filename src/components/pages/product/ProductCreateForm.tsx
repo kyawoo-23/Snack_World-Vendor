@@ -23,7 +23,7 @@ import TextArea from "antd/es/input/TextArea";
 import "./ProductCreateForm.css";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { createProduct } from "@/actions/product.action";
-import { TProductCreateRequest } from "@/utils/models/product.model";
+import { TProductCreateRequestVM } from "@/utils/models/product.model";
 import { FileType } from "@/utils/models";
 import { getBase64 } from "@/utils/shared";
 
@@ -44,7 +44,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
 
-  const onFinish: FormProps<TProductCreateRequest>["onFinish"] = async (
+  const onFinish: FormProps<TProductCreateRequestVM>["onFinish"] = async (
     values
   ) => {
     const { primaryImage, productImages, ...request } = values;
@@ -135,7 +135,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
 
   return (
     <>
-      <Form<TProductCreateRequest>
+      <Form<TProductCreateRequestVM>
         form={form}
         name='product'
         layout='vertical'
@@ -145,7 +145,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
       >
         <Row gutter={24} align='bottom'>
           <Col span={12}>
-            <Form.Item<TProductCreateRequest>
+            <Form.Item<TProductCreateRequestVM>
               label='Primary Image'
               name='primaryImage'
               rules={[
@@ -164,7 +164,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item<TProductCreateRequest>
+            <Form.Item<TProductCreateRequestVM>
               label='Name'
               name='name'
               rules={[{ required: true, message: "Please input name!" }]}
@@ -174,7 +174,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
           </Col>
 
           <Col span={24}>
-            <Form.Item<TProductCreateRequest>
+            <Form.Item<TProductCreateRequestVM>
               label='Description'
               name='description'
               rules={[{ required: true, message: "Please input description!" }]}
@@ -184,7 +184,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
           </Col>
 
           <Col span={12}>
-            <Form.Item<TProductCreateRequest>
+            <Form.Item<TProductCreateRequestVM>
               label='Category'
               name='categoryId'
               rules={[{ required: true, message: "Please select category!" }]}
@@ -199,7 +199,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item<TProductCreateRequest>
+            <Form.Item<TProductCreateRequestVM>
               label='Variant'
               name='productVariants'
               rules={[{ required: true, message: "Please select variant!" }]}
@@ -218,7 +218,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
           </Col>
 
           <Col span={12}>
-            <Form.Item<TProductCreateRequest>
+            <Form.Item<TProductCreateRequestVM>
               label='Price'
               name='price'
               rules={[{ required: true, message: "Please input price!" }]}
@@ -227,7 +227,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item<TProductCreateRequest>
+            <Form.Item<TProductCreateRequestVM>
               label='Weight'
               name='weight'
               rules={[{ required: true, message: "Please input weight!" }]}
@@ -237,7 +237,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
           </Col>
 
           <Col span={24}>
-            <Form.Item<TProductCreateRequest>
+            <Form.Item<TProductCreateRequestVM>
               label='Image List'
               name='productImages'
               rules={[{ required: true, message: "Please upload image list!" }]}
@@ -247,7 +247,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
                 listType='picture'
                 className='upload-list-inline'
                 showUploadList={true}
-                maxCount={3}
+                maxCount={5}
                 multiple
                 onChange={handleListChange}
                 onPreview={handlePreview}
@@ -255,7 +255,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
               >
                 {productImages.length < 5 && (
                   <Button icon={<MdOutlineFileUpload />}>
-                    Upload (Max: 3)
+                    Upload (Max: 5)
                   </Button>
                 )}
               </Upload>
