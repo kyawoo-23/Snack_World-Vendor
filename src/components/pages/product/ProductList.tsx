@@ -2,10 +2,12 @@
 
 import Image from "next/image";
 import { Product } from "@/prisma-types";
-import { Table, TableColumnsType } from "antd";
+import { Table, TableColumnsType, Button, Tag } from "antd";
+import { MdModeEditOutline } from "react-icons/md";
+import Link from "next/link";
+import { calculateTotalStock } from "@/utils/shared";
 
 export default function ProductList({ products }: { products: Product[] }) {
-  console.log(products);
   const columns: TableColumnsType<Product> = [
     {
       title: "Image",
@@ -13,19 +15,27 @@ export default function ProductList({ products }: { products: Product[] }) {
       render: (image) => {
         return (
           <figure className='size-14'>
-            <Image src={image} fill className='object-contain' alt='product' />
+            <Image
+              src={image}
+              fill
+              className='p-2 object-contain'
+              alt='product'
+            />
           </figure>
         );
       },
     },
     {
       title: "Name",
-      dataIndex: "name",
+      dataIndex: "n",
       sorter: (a, b) => a.name.length - b.name.length,
     },
     {
       title: "Stock",
-      dataIndex: "stock",
+      dataIndex: "productVariant",
+      render: (variant) => {
+        return calculateTotalStock(variant);
+      },
     },
     {
       title: "Category",
@@ -41,10 +51,25 @@ export default function ProductList({ products }: { products: Product[] }) {
       sorter: (a, b) => a.price - b.price,
     },
     {
-      title: "Promotion",
-      dataIndex: "promotion",
-      render: (promotion, record) => {
-        return promotion ? record.promotionPrice : "N/A";
+      title: "Status",
+      dataIndex: "isActive",
+      render: (active) => {
+        return active ? (
+          <Tag color='green'>Active</Tag>
+        ) : (
+          <Tag color='red'>In Active</Tag>
+        );
+      },
+    },
+    {
+      title: "Action",
+      dataIndex: "productId",
+      render: (id) => {
+        return (
+          <Link href={`product/${id}`}>
+            <Button icon={<MdModeEditOutline />} shape='round'></Button>
+          </Link>
+        );
       },
     },
   ];
