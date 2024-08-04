@@ -1,6 +1,6 @@
 "use client";
 
-import { Variant, Category } from "@/prisma-types";
+import { Variant, Category, Product } from "@/prisma-types";
 import {
   App,
   Col,
@@ -21,26 +21,30 @@ import type { SelectProps, UploadFile, UploadProps } from "antd";
 import AvatarUploadButton from "@/components/Button/UploadButton";
 import TextArea from "antd/es/input/TextArea";
 import "./ProductCreateForm.css";
-import { MdOutlineFileUpload } from "react-icons/md";
 import { createProduct } from "@/actions/product.action";
 import { TProductCreateRequestVM } from "@/utils/models/product.model";
 import { FileType } from "@/utils/models";
 import { getBase64 } from "@/utils/shared";
+import ProductDetailsImageListForm from "@/components/pages/product/ProductDetailsImageListForm";
 
 type Props = {
   categories: Category[];
   variants: Variant[];
+  initialValues?: Product;
 };
 
 type TagRender = SelectProps["tagRender"];
 
-export default function ProductCreateForm({ categories, variants }: Props) {
+export default function ProductDetails({
+  categories,
+  variants,
+  initialValues,
+}: Props) {
   const router = useRouter();
   const { notification } = App.useApp();
   const [isPending, startSubmission] = useTransition();
   const [form] = Form.useForm();
   const [primaryImage, setPrimaryImage] = useState<File | null>(null);
-  const [productImages, setProductImages] = useState<File[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
 
@@ -55,11 +59,6 @@ export default function ProductCreateForm({ categories, variants }: Props) {
         "primaryImage",
         primaryImage.fileList[0].originFileObj as File
       );
-    }
-    if (productImages?.fileList) {
-      productImages.fileList.forEach((file) => {
-        imageFormData.append("productImages", file.originFileObj as File);
-      });
     }
 
     startSubmission(async () => {
@@ -110,21 +109,6 @@ export default function ProductCreateForm({ categories, variants }: Props) {
     }
   };
 
-  const handleListChange: UploadProps["onChange"] = (info) => {
-    if (info.file.status === "removed") {
-      const updatedImageList = productImages.filter(
-        (file) => file.name !== info.file.name
-      );
-      setProductImages(updatedImageList);
-
-      if (updatedImageList.length === 0) {
-        form.setFieldsValue({ productImages: null });
-      }
-    } else if (info.file.status === "done") {
-      setProductImages((prev) => [...prev, info.file.originFileObj as File]);
-    }
-  };
-
   const handlePreview = async (file: UploadFile) => {
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj as FileType);
@@ -134,17 +118,16 @@ export default function ProductCreateForm({ categories, variants }: Props) {
   };
 
   return (
-    <>
+    <div style={{ maxWidth: "640px" }}>
       <Form<TProductCreateRequestVM>
         form={form}
         name='product'
         layout='vertical'
         onFinish={onFinish}
         autoComplete='off'
-        style={{ maxWidth: "640px" }}
       >
         <Row gutter={24} align='bottom'>
-          <Col span={12}>
+          <Col span={24}>
             <Form.Item<TProductCreateRequestVM>
               label='Primary Image'
               name='primaryImage'
@@ -152,16 +135,24 @@ export default function ProductCreateForm({ categories, variants }: Props) {
                 { required: true, message: "Please upload primary image!" },
               ]}
             >
-              <Upload
-                name='avatar'
-                listType='picture-card'
-                showUploadList={true}
-                onChange={handlePrimaryChange}
-                onPreview={handlePreview}
-                accept='image/*'
-              >
-                {!primaryImage && <AvatarUploadButton />}
-              </Upload>
+              <div className='grid grid-cols-2 items-center'>
+                <Image
+                  width={100}
+                  height={100}
+                  alt={initialValues?.name}
+                  src={initialValues?.primaryImage}
+                />
+                <Upload
+                  name='avatar'
+                  listType='picture-card'
+                  showUploadList={true}
+                  onChange={handlePrimaryChange}
+                  onPreview={handlePreview}
+                  accept='image/*'
+                >
+                  {!primaryImage && <AvatarUploadButton />}
+                </Upload>
+              </div>
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -170,7 +161,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
               name='name'
               rules={[{ required: true, message: "Please input name!" }]}
             >
-              <Input />
+              <Input defaultValue={initialValues?.name} />
             </Form.Item>
           </Col>
 
@@ -180,7 +171,10 @@ export default function ProductCreateForm({ categories, variants }: Props) {
               name='description'
               rules={[{ required: true, message: "Please input description!" }]}
             >
-              <TextArea autoSize={{ minRows: 3, maxRows: 5 }} />
+              <TextArea
+                autoSize={{ minRows: 3, maxRows: 5 }}
+                defaultValue={initialValues?.description}
+              />
             </Form.Item>
           </Col>
 
@@ -192,6 +186,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
             >
               <Select
                 placeholder='Select category'
+                defaultValue={initialValues?.categoryId}
                 options={categories.map((category) => ({
                   label: category.name,
                   value: category.categoryId,
@@ -207,6 +202,9 @@ export default function ProductCreateForm({ categories, variants }: Props) {
             >
               <Select
                 placeholder='Select variant'
+                defaultValue={initialValues?.productVariant.map(
+                  (variant) => variant.variantId
+                )}
                 tagRender={tagRender}
                 options={variants.map((variant) => ({
                   label: variant.name,
@@ -224,7 +222,11 @@ export default function ProductCreateForm({ categories, variants }: Props) {
               name='price'
               rules={[{ required: true, message: "Please input price!" }]}
             >
-              <Input type='number' addonBefore='$' />
+              <Input
+                type='number'
+                addonBefore='$'
+                defaultValue={initialValues?.price}
+              />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -233,33 +235,11 @@ export default function ProductCreateForm({ categories, variants }: Props) {
               name='weight'
               rules={[{ required: true, message: "Please input weight!" }]}
             >
-              <Input type='number' addonAfter='gram' />
-            </Form.Item>
-          </Col>
-
-          <Col span={24}>
-            <Form.Item<TProductCreateRequestVM>
-              label='Image List'
-              name='productImages'
-              rules={[{ required: true, message: "Please upload image list!" }]}
-            >
-              <Upload
-                name='productImages'
-                listType='picture'
-                className='upload-list-inline'
-                showUploadList={true}
-                maxCount={5}
-                multiple
-                onChange={handleListChange}
-                onPreview={handlePreview}
-                accept='image/*'
-              >
-                {productImages.length < 5 && (
-                  <Button icon={<MdOutlineFileUpload />}>
-                    Upload (Max: 5)
-                  </Button>
-                )}
-              </Upload>
+              <Input
+                type='number'
+                addonAfter='gram'
+                defaultValue={initialValues?.weight}
+              />
             </Form.Item>
           </Col>
 
@@ -277,6 +257,12 @@ export default function ProductCreateForm({ categories, variants }: Props) {
           </Col>
         </Row>
       </Form>
+
+      <ProductDetailsImageListForm
+        productImage={initialValues?.productImage ?? []}
+        handlePreview={handlePreview}
+      />
+
       {previewImage && (
         <Image
           alt='Preview Image'
@@ -289,6 +275,6 @@ export default function ProductCreateForm({ categories, variants }: Props) {
           src={previewImage}
         />
       )}
-    </>
+    </div>
   );
 }

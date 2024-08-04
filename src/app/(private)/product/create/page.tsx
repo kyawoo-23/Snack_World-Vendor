@@ -1,20 +1,18 @@
 import ProductCreateForm from "@/components/pages/product/ProductCreateForm";
 import MainLayout from "@/components/Layout/MainLayout";
-import { axiosAPI } from "@/utils/api/config";
-import { BaseResponse } from "@/utils/constants/response.type";
 import { Category, Variant } from "@/prisma-types";
+import { get } from "@/utils/api";
 
 export default async function page() {
-  const {
-    data: { data: categories },
-  } = await axiosAPI.get<BaseResponse<Category[]>>("category");
-  const {
-    data: { data: variants },
-  } = await axiosAPI.get<BaseResponse<Variant[]>>("variant");
+  const { data: categories } = await get<Category[]>("category");
+  const { data: variants } = await get<Variant[]>("variant");
 
   return (
     <MainLayout title='Create new product'>
-      <ProductCreateForm categories={categories} variants={variants} />
+      <ProductCreateForm
+        categories={categories ?? []}
+        variants={variants ?? []}
+      />
     </MainLayout>
   );
 }

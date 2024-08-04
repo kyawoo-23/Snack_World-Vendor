@@ -27,11 +27,11 @@ export default function ProductList({ products }: { products: Product[] }) {
     },
     {
       title: "Name",
-      dataIndex: "n",
+      dataIndex: "name",
       sorter: (a, b) => a.name.length - b.name.length,
     },
     {
-      title: "Stock",
+      title: "Total Stock",
       dataIndex: "productVariant",
       render: (variant) => {
         return calculateTotalStock(variant);
