@@ -15,16 +15,16 @@ import {
   Flex,
   Button,
 } from "antd";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { SelectProps, UploadFile, UploadProps } from "antd";
 import AvatarUploadButton from "@/components/Button/UploadButton";
 import TextArea from "antd/es/input/TextArea";
 import "./ProductCreateForm.css";
-import { createProduct } from "@/actions/product.action";
+import { createProduct, updateProductDetails } from "@/actions/product.action";
 import { TProductCreateRequestVM } from "@/utils/models/product.model";
 import { FileType } from "@/utils/models";
-import { getBase64 } from "@/utils/shared";
+import { getBase64, getImageKey } from "@/utils/shared";
 import ProductDetailsImageListForm from "@/components/pages/product/ProductDetailsImageListForm";
 
 type Props = {
@@ -40,33 +40,43 @@ export default function ProductDetails({
   variants,
   initialValues,
 }: Props) {
-  const router = useRouter();
   const { notification } = App.useApp();
   const [isPending, startSubmission] = useTransition();
   const [form] = Form.useForm();
-  const [primaryImage, setPrimaryImage] = useState<File | null>(null);
+  const [newPrimaryImage, setNewPrimaryImage] = useState<UploadProps | null>(
+    null
+  );
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
+  const router = useRouter();
+  const params = useParams();
 
   const onFinish: FormProps<TProductCreateRequestVM>["onFinish"] = async (
     values
   ) => {
     const { primaryImage, productImages, ...request } = values;
     const imageFormData = new FormData();
+    let isImageFormDataAppended = false;
 
-    if (primaryImage?.fileList) {
+    if (newPrimaryImage?.fileList) {
       imageFormData.append(
         "primaryImage",
-        primaryImage.fileList[0].originFileObj as File
+        newPrimaryImage.fileList[0].originFileObj as File
       );
+      isImageFormDataAppended = true;
     }
 
     startSubmission(async () => {
-      const res = await createProduct(request, imageFormData);
+      const res = await updateProductDetails(
+        params.id as string,
+        request,
+        getImageKey(initialValues?.primaryImage as string),
+        isImageFormDataAppended ? imageFormData : undefined
+      );
       if (res.isSuccess) {
         notification.success({ message: res.message });
         form.resetFields();
-        router.push("/product");
+        router.refresh();
       } else {
         notification.error({ message: res.message });
       }
@@ -102,10 +112,10 @@ export default function ProductDetails({
 
   const handlePrimaryChange: UploadProps["onChange"] = (info) => {
     if (info.file.status === "removed") {
-      setPrimaryImage(null);
+      setNewPrimaryImage(null);
       form.setFieldsValue({ primaryImage: null });
     } else if (info.file.status === "done") {
-      setPrimaryImage(info.file.originFileObj as File);
+      setNewPrimaryImage(info);
     }
   };
 
@@ -124,13 +134,22 @@ export default function ProductDetails({
         name='product'
         layout='vertical'
         onFinish={onFinish}
+        initialValues={
+          initialValues
+            ? {
+                ...initialValues,
+                productVariants: initialValues.productVariant.map(
+                  (variant) => variant.variantId
+                ),
+              }
+            : undefined
+        }
         autoComplete='off'
       >
         <Row gutter={24} align='bottom'>
           <Col span={24}>
             <Form.Item<TProductCreateRequestVM>
               label='Primary Image'
-              name='primaryImage'
               rules={[
                 { required: true, message: "Please upload primary image!" },
               ]}
@@ -150,7 +169,7 @@ export default function ProductDetails({
                   onPreview={handlePreview}
                   accept='image/*'
                 >
-                  {!primaryImage && <AvatarUploadButton />}
+                  {!newPrimaryImage && <AvatarUploadButton />}
                 </Upload>
               </div>
             </Form.Item>
@@ -161,7 +180,7 @@ export default function ProductDetails({
               name='name'
               rules={[{ required: true, message: "Please input name!" }]}
             >
-              <Input defaultValue={initialValues?.name} />
+              <Input />
             </Form.Item>
           </Col>
 
@@ -171,10 +190,7 @@ export default function ProductDetails({
               name='description'
               rules={[{ required: true, message: "Please input description!" }]}
             >
-              <TextArea
-                autoSize={{ minRows: 3, maxRows: 5 }}
-                defaultValue={initialValues?.description}
-              />
+              <TextArea autoSize={{ minRows: 3, maxRows: 5 }} />
             </Form.Item>
           </Col>
 
@@ -186,7 +202,6 @@ export default function ProductDetails({
             >
               <Select
                 placeholder='Select category'
-                defaultValue={initialValues?.categoryId}
                 options={categories.map((category) => ({
                   label: category.name,
                   value: category.categoryId,
@@ -202,9 +217,6 @@ export default function ProductDetails({
             >
               <Select
                 placeholder='Select variant'
-                defaultValue={initialValues?.productVariant.map(
-                  (variant) => variant.variantId
-                )}
                 tagRender={tagRender}
                 options={variants.map((variant) => ({
                   label: variant.name,
@@ -222,11 +234,7 @@ export default function ProductDetails({
               name='price'
               rules={[{ required: true, message: "Please input price!" }]}
             >
-              <Input
-                type='number'
-                addonBefore='$'
-                defaultValue={initialValues?.price}
-              />
+              <Input type='number' addonBefore='$' />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -235,11 +243,7 @@ export default function ProductDetails({
               name='weight'
               rules={[{ required: true, message: "Please input weight!" }]}
             >
-              <Input
-                type='number'
-                addonAfter='gram'
-                defaultValue={initialValues?.weight}
-              />
+              <Input type='number' addonAfter='gram' />
             </Form.Item>
           </Col>
 

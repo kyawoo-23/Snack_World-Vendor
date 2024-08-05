@@ -59,7 +59,7 @@ export default function ProductDetailsImageListForm({
           imageFormData.append("productImages", file.originFileObj as File);
         });
       }
-      console.log(params.id);
+
       startSubmission(async () => {
         const res = await addProductImage(params.id as string, imageFormData);
         if (res.isSuccess) {

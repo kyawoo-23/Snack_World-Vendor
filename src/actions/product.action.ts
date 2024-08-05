@@ -1,19 +1,52 @@
 "use server";
 
-import { post, remove } from "@/utils/api";
+import { patch, post, remove } from "@/utils/api";
 import { BaseResponse } from "@/utils/constants/response.type";
 import { utapi } from "@/utils/library/uploadthing";
 import { TProductCreateRequest } from "@/utils/models/product.model";
 
 export const updateProductDetails = async (
   id: string,
-  data: TProductCreateRequest
+  data: TProductCreateRequest,
+  primaryImageKey?: string,
+  formData?: FormData
 ): Promise<BaseResponse> => {
-  const res = await post<BaseResponse, TProductCreateRequest>(`product/${id}`, {
-    ...data,
-    price: parseFloat(data.price.toString()),
-    weight: parseFloat(data.weight.toString()),
-  });
+  const primaryImage = formData?.get("primaryImage") as File;
+  if (primaryImage) {
+    if (primaryImageKey) {
+      const deleted = await utapi.deleteFiles(primaryImageKey);
+      if (!deleted) {
+        return {
+          isSuccess: false,
+          message: "Failed to delete image",
+          error: "Error deleting in UTAPI",
+        };
+      }
+    }
+
+    const primaryImgRes = await utapi.uploadFiles(primaryImage);
+    const res = await patch<BaseResponse, TProductCreateRequest>(
+      `product/${id}`,
+      {
+        ...data,
+        price: parseFloat(data.price.toString()),
+        weight: parseFloat(data.weight.toString()),
+        primaryImage: primaryImgRes.data?.url,
+      }
+    );
+
+    return res;
+  }
+
+  const res = await patch<BaseResponse, TProductCreateRequest>(
+    `product/${id}`,
+    {
+      ...data,
+      price: parseFloat(data.price.toString()),
+      weight: parseFloat(data.weight.toString()),
+      categoryId: data.categoryId,
+    }
+  );
 
   return res;
 };
