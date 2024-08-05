@@ -1,5 +1,7 @@
+import { addProductImage, deleteProductImage } from "@/actions/product.action";
 import { ProductImage } from "@/prisma-types";
 import { TProductCreateRequestVM } from "@/utils/models/product.model";
+import { getImageKey } from "@/utils/shared";
 import { DeleteFilled } from "@ant-design/icons";
 import {
   Form,
@@ -12,7 +14,9 @@ import {
   Image,
   UploadFile,
   Flex,
+  App,
 } from "antd";
+import { useParams, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { MdOutlineFileUpload } from "react-icons/md";
 
@@ -26,6 +30,9 @@ export default function ProductDetailsImageListForm({
   const [imageListForm] = Form.useForm();
   const [isPending, startSubmission] = useTransition();
   const [productImages, setProductImages] = useState<File[]>([]);
+  const { notification } = App.useApp();
+  const router = useRouter();
+  const params = useParams();
 
   const handleListChange: UploadProps["onChange"] = (info) => {
     if (info.file.status === "removed") {
@@ -52,6 +59,16 @@ export default function ProductDetailsImageListForm({
           imageFormData.append("productImages", file.originFileObj as File);
         });
       }
+      console.log(params.id);
+      startSubmission(async () => {
+        const res = await addProductImage(params.id as string, imageFormData);
+        if (res.isSuccess) {
+          imageListForm.resetFields();
+          router.refresh();
+        } else {
+          notification.error({ message: res.message });
+        }
+      });
     };
 
   return (
@@ -105,8 +122,20 @@ export default function ProductDetailsImageListForm({
 }
 
 const ImageDetails = ({ id, image }: { id: string; image: string }) => {
+  const [isPending, startSubmission] = useTransition();
+  const { notification } = App.useApp();
+  const router = useRouter();
+
   const onDelete = (id: string) => {
-    console.log("Delete image with id: ", id);
+    startSubmission(async () => {
+      const res = await deleteProductImage(id, getImageKey(image));
+      if (res.isSuccess) {
+        notification.success({ message: res.message });
+        router.refresh();
+      } else {
+        notification.error({ message: res.message });
+      }
+    });
   };
 
   return (
@@ -124,6 +153,7 @@ const ImageDetails = ({ id, image }: { id: string; image: string }) => {
         danger
         type='primary'
         onClick={() => onDelete(id)}
+        loading={isPending}
       >
         Delete
       </Button>

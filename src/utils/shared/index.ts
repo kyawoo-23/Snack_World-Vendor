@@ -11,3 +11,7 @@ export const getBase64 = (file: FileType): Promise<string> =>
 export const calculateTotalStock = (products: any[]) => {
   return products.reduce((acc, curr) => acc + curr.stock, 0);
 };
+
+export const getImageKey = (image: string): string => {
+  return image.split("/").pop() as string;
+};
