@@ -3,11 +3,26 @@
 import { patch, post, remove } from "@/utils/api";
 import { BaseResponse } from "@/utils/constants/response.type";
 import { utapi } from "@/utils/library/uploadthing";
-import { TProductCreateRequest } from "@/utils/models/product.model";
+import {
+  TProductCreateRequest,
+  TProductCreateRequestVM,
+  TProductUpdateRequest,
+  TProductUpdateRequestVM,
+} from "@/utils/models/product.model";
+
+export const toggleProductStatus = async (
+  id: string
+): Promise<BaseResponse> => {
+  const res = await patch<BaseResponse, { status: boolean }>(
+    `product/${id}/toggle-status`
+  );
+
+  return res;
+};
 
 export const updateProductDetails = async (
   id: string,
-  data: TProductCreateRequest,
+  data: TProductUpdateRequestVM,
   primaryImageKey?: string,
   formData?: FormData
 ): Promise<BaseResponse> => {
@@ -25,7 +40,7 @@ export const updateProductDetails = async (
     }
 
     const primaryImgRes = await utapi.uploadFiles(primaryImage);
-    const res = await patch<BaseResponse, TProductCreateRequest>(
+    const res = await patch<BaseResponse, TProductUpdateRequest>(
       `product/${id}`,
       {
         ...data,
@@ -38,13 +53,12 @@ export const updateProductDetails = async (
     return res;
   }
 
-  const res = await patch<BaseResponse, TProductCreateRequest>(
+  const res = await patch<BaseResponse, TProductUpdateRequest>(
     `product/${id}`,
     {
       ...data,
       price: parseFloat(data.price.toString()),
       weight: parseFloat(data.weight.toString()),
-      categoryId: data.categoryId,
     }
   );
 
@@ -91,7 +105,7 @@ export const deleteProductImage = async (
 };
 
 export const createProduct = async (
-  data: TProductCreateRequest,
+  data: TProductCreateRequestVM,
   formData: FormData
 ): Promise<BaseResponse> => {
   const primaryImage = formData.get("primaryImage") as File;

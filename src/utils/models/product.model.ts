@@ -23,3 +23,26 @@ export type TProductCreateRequest = {
   productImages?: string[];
   vendorId: string;
 };
+
+export type TProductUpdateRequestVM = {
+  name: string;
+  price: number;
+  description: string;
+  categoryId: string;
+  productVariants: string[];
+  weight: number;
+  promotion?: boolean;
+  promotionPrice?: number;
+};
+
+export type TProductUpdateRequest = {
+  name: string;
+  price: number;
+  description: string;
+  categoryId: string;
+  productVariants: string[];
+  weight: number;
+  promotion?: boolean;
+  promotionPrice?: number;
+  primaryImage?: string;
+};

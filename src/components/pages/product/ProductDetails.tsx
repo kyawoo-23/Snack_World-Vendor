@@ -14,6 +14,7 @@ import {
   Image,
   Flex,
   Button,
+  Switch,
 } from "antd";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -21,8 +22,11 @@ import type { SelectProps, UploadFile, UploadProps } from "antd";
 import AvatarUploadButton from "@/components/Button/UploadButton";
 import TextArea from "antd/es/input/TextArea";
 import "./ProductCreateForm.css";
-import { createProduct, updateProductDetails } from "@/actions/product.action";
-import { TProductCreateRequestVM } from "@/utils/models/product.model";
+import {
+  toggleProductStatus,
+  updateProductDetails,
+} from "@/actions/product.action";
+import { TProductUpdateRequestVM } from "@/utils/models/product.model";
 import { FileType } from "@/utils/models";
 import { getBase64, getImageKey } from "@/utils/shared";
 import ProductDetailsImageListForm from "@/components/pages/product/ProductDetailsImageListForm";
@@ -42,6 +46,7 @@ export default function ProductDetails({
 }: Props) {
   const { notification } = App.useApp();
   const [isPending, startSubmission] = useTransition();
+  const [isStatusPending, startStatusSubmission] = useTransition();
   const [form] = Form.useForm();
   const [newPrimaryImage, setNewPrimaryImage] = useState<UploadProps | null>(
     null
@@ -51,10 +56,9 @@ export default function ProductDetails({
   const router = useRouter();
   const params = useParams();
 
-  const onFinish: FormProps<TProductCreateRequestVM>["onFinish"] = async (
+  const onFinish: FormProps<TProductUpdateRequestVM>["onFinish"] = async (
     values
   ) => {
-    const { primaryImage, productImages, ...request } = values;
     const imageFormData = new FormData();
     let isImageFormDataAppended = false;
 
@@ -69,7 +73,7 @@ export default function ProductDetails({
     startSubmission(async () => {
       const res = await updateProductDetails(
         params.id as string,
-        request,
+        values,
         getImageKey(initialValues?.primaryImage as string),
         isImageFormDataAppended ? imageFormData : undefined
       );
@@ -85,6 +89,18 @@ export default function ProductDetails({
 
   const onReset = () => {
     form.resetFields();
+  };
+
+  const handleToggleProductStatus = () => {
+    startStatusSubmission(async () => {
+      const res = await toggleProductStatus(params.id as string);
+      if (res.isSuccess) {
+        notification.success({ message: res.message });
+        router.refresh();
+      } else {
+        notification.error({ message: res.message });
+      }
+    });
   };
 
   const tagRender: TagRender = (props) => {
@@ -129,7 +145,7 @@ export default function ProductDetails({
 
   return (
     <div style={{ maxWidth: "640px" }}>
-      <Form<TProductCreateRequestVM>
+      <Form<TProductUpdateRequestVM>
         form={form}
         name='product'
         layout='vertical'
@@ -148,7 +164,7 @@ export default function ProductDetails({
       >
         <Row gutter={24} align='bottom'>
           <Col span={24}>
-            <Form.Item<TProductCreateRequestVM>
+            <Form.Item<TProductUpdateRequestVM>
               label='Primary Image'
               rules={[
                 { required: true, message: "Please upload primary image!" },
@@ -160,6 +176,7 @@ export default function ProductDetails({
                   height={100}
                   alt={initialValues?.name}
                   src={initialValues?.primaryImage}
+                  className='rounded'
                 />
                 <Upload
                   name='avatar'
@@ -174,8 +191,9 @@ export default function ProductDetails({
               </div>
             </Form.Item>
           </Col>
+
           <Col span={12}>
-            <Form.Item<TProductCreateRequestVM>
+            <Form.Item<TProductUpdateRequestVM>
               label='Name'
               name='name'
               rules={[{ required: true, message: "Please input name!" }]}
@@ -184,8 +202,20 @@ export default function ProductDetails({
             </Form.Item>
           </Col>
 
+          <Col span={12}>
+            <Form.Item label='Status'>
+              <Switch
+                checkedChildren='Active'
+                unCheckedChildren='In Active'
+                defaultChecked={initialValues?.isActive}
+                onChange={() => handleToggleProductStatus()}
+                loading={isStatusPending}
+              />
+            </Form.Item>
+          </Col>
+
           <Col span={24}>
-            <Form.Item<TProductCreateRequestVM>
+            <Form.Item<TProductUpdateRequestVM>
               label='Description'
               name='description'
               rules={[{ required: true, message: "Please input description!" }]}
@@ -195,7 +225,7 @@ export default function ProductDetails({
           </Col>
 
           <Col span={12}>
-            <Form.Item<TProductCreateRequestVM>
+            <Form.Item<TProductUpdateRequestVM>
               label='Category'
               name='categoryId'
               rules={[{ required: true, message: "Please select category!" }]}
@@ -209,8 +239,9 @@ export default function ProductDetails({
               />
             </Form.Item>
           </Col>
+
           <Col span={12}>
-            <Form.Item<TProductCreateRequestVM>
+            <Form.Item<TProductUpdateRequestVM>
               label='Variant'
               name='productVariants'
               rules={[{ required: true, message: "Please select variant!" }]}
@@ -229,7 +260,7 @@ export default function ProductDetails({
           </Col>
 
           <Col span={12}>
-            <Form.Item<TProductCreateRequestVM>
+            <Form.Item<TProductUpdateRequestVM>
               label='Price'
               name='price'
               rules={[{ required: true, message: "Please input price!" }]}
@@ -237,8 +268,9 @@ export default function ProductDetails({
               <Input type='number' addonBefore='$' />
             </Form.Item>
           </Col>
+
           <Col span={12}>
-            <Form.Item<TProductCreateRequestVM>
+            <Form.Item<TProductUpdateRequestVM>
               label='Weight'
               name='weight'
               rules={[{ required: true, message: "Please input weight!" }]}
@@ -261,6 +293,10 @@ export default function ProductDetails({
           </Col>
         </Row>
       </Form>
+
+      <div className='my-8'>
+        <hr />
+      </div>
 
       <ProductDetailsImageListForm
         productImage={initialValues?.productImage ?? []}

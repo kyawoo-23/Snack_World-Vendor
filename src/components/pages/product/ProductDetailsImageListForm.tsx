@@ -29,25 +29,9 @@ export default function ProductDetailsImageListForm({
 }) {
   const [imageListForm] = Form.useForm();
   const [isPending, startSubmission] = useTransition();
-  const [productImages, setProductImages] = useState<File[]>([]);
   const { notification } = App.useApp();
   const router = useRouter();
   const params = useParams();
-
-  const handleListChange: UploadProps["onChange"] = (info) => {
-    if (info.file.status === "removed") {
-      const updatedImageList = productImages.filter(
-        (file) => file.name !== info.file.name
-      );
-      setProductImages(updatedImageList);
-
-      if (updatedImageList.length === 0) {
-        imageListForm.setFieldsValue({ productImages: null });
-      }
-    } else if (info.file.status === "done") {
-      setProductImages((prev) => [...prev, info.file.originFileObj as File]);
-    }
-  };
 
   const onUploadImageList: FormProps<TProductCreateRequestVM>["onFinish"] =
     async (values) => {
@@ -77,13 +61,17 @@ export default function ProductDetailsImageListForm({
       onFinish={onUploadImageList}
       layout='vertical'
     >
-      <h3 className='font-bold'>Image List</h3>
+      <h3 className='font-bold my-3'>Image List</h3>
       <Row gutter={24}>
         {productImage.map((img, index) => (
           <ImageDetails key={index} id={img.productImageId} image={img.image} />
         ))}
 
-        <Col span={24} className='mt-8'>
+        <Col span={24} className='my-8'>
+          <hr />
+        </Col>
+
+        <Col span={24}>
           <Form.Item<TProductCreateRequestVM>
             label='Add New Image'
             name='productImages'
@@ -96,13 +84,10 @@ export default function ProductDetailsImageListForm({
               showUploadList={true}
               maxCount={5}
               multiple
-              onChange={handleListChange}
               onPreview={handlePreview}
               accept='image/*'
             >
-              {productImages.length < 5 && (
-                <Button icon={<MdOutlineFileUpload />}>Upload (Max: 5)</Button>
-              )}
+              <Button icon={<MdOutlineFileUpload />}>Upload (Max: 5)</Button>
             </Upload>
           </Form.Item>
         </Col>
@@ -144,12 +129,12 @@ const ImageDetails = ({ id, image }: { id: string; image: string }) => {
         width={140}
         height={140}
         alt={`Product Image`}
-        className='object-contain'
+        className='rounded object-contain'
         src={image}
       />
       <Button
         icon={<DeleteFilled />}
-        className='w-full'
+        className='w-full mb-4'
         danger
         type='primary'
         onClick={() => onDelete(id)}

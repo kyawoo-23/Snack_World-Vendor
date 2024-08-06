@@ -4,7 +4,7 @@ import { Flex, Spin } from "antd";
 export default function Loading() {
   return (
     <div className='h-screen grid place-items-center'>
-      <Spin indicator={<LoadingOutlined spin />} size='small' />
+      <Spin indicator={<LoadingOutlined spin />} size='default' />
     </div>
   );
 }

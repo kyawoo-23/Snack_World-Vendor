@@ -39,8 +39,6 @@ export default function ProductCreateForm({ categories, variants }: Props) {
   const { notification } = App.useApp();
   const [isPending, startSubmission] = useTransition();
   const [form] = Form.useForm();
-  const [primaryImage, setPrimaryImage] = useState<File | null>(null);
-  const [productImages, setProductImages] = useState<File[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
 
@@ -101,30 +99,6 @@ export default function ProductCreateForm({ categories, variants }: Props) {
     );
   };
 
-  const handlePrimaryChange: UploadProps["onChange"] = (info) => {
-    if (info.file.status === "removed") {
-      setPrimaryImage(null);
-      form.setFieldsValue({ primaryImage: null });
-    } else if (info.file.status === "done") {
-      setPrimaryImage(info.file.originFileObj as File);
-    }
-  };
-
-  const handleListChange: UploadProps["onChange"] = (info) => {
-    if (info.file.status === "removed") {
-      const updatedImageList = productImages.filter(
-        (file) => file.name !== info.file.name
-      );
-      setProductImages(updatedImageList);
-
-      if (updatedImageList.length === 0) {
-        form.setFieldsValue({ productImages: null });
-      }
-    } else if (info.file.status === "done") {
-      setProductImages((prev) => [...prev, info.file.originFileObj as File]);
-    }
-  };
-
   const handlePreview = async (file: UploadFile) => {
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj as FileType);
@@ -156,11 +130,11 @@ export default function ProductCreateForm({ categories, variants }: Props) {
                 name='avatar'
                 listType='picture-card'
                 showUploadList={true}
-                onChange={handlePrimaryChange}
                 onPreview={handlePreview}
                 accept='image/*'
+                maxCount={1}
               >
-                {!primaryImage && <AvatarUploadButton />}
+                <AvatarUploadButton />
               </Upload>
             </Form.Item>
           </Col>
@@ -250,15 +224,10 @@ export default function ProductCreateForm({ categories, variants }: Props) {
                 showUploadList={true}
                 maxCount={5}
                 multiple
-                onChange={handleListChange}
                 onPreview={handlePreview}
                 accept='image/*'
               >
-                {productImages.length < 5 && (
-                  <Button icon={<MdOutlineFileUpload />}>
-                    Upload (Max: 5)
-                  </Button>
-                )}
+                <Button icon={<MdOutlineFileUpload />}>Upload (Max: 5)</Button>
               </Upload>
             </Form.Item>
           </Col>
