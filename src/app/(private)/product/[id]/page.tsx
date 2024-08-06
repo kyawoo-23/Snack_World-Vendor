@@ -1,5 +1,5 @@
 import MainLayout from "@/components/Layout/MainLayout";
-import ProductCreateForm from "@/components/pages/product/ProductCreateForm";
+import { notFound } from "next/navigation";
 import ProductDetails from "@/components/pages/product/ProductDetails";
 import { Category, Product, Variant } from "@/prisma-types";
 import { get } from "@/utils/api";
@@ -9,8 +9,7 @@ export default async function page({ params }: { params: { id: string } }) {
   const { data: categories } = await get<Category[]>("category");
   const { data: variants } = await get<Variant[]>("variant");
 
-  if (!product) return "No product found";
-  console.log(product);
+  if (!product) notFound();
 
   return (
     <MainLayout title={`${product.name} details`}>

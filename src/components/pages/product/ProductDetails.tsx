@@ -53,6 +53,7 @@ export default function ProductDetails({
   );
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
+  const [isPromotion, setIsPromotion] = useState(initialValues?.promotion);
   const router = useRouter();
   const params = useParams();
 
@@ -77,9 +78,9 @@ export default function ProductDetails({
         getImageKey(initialValues?.primaryImage as string),
         isImageFormDataAppended ? imageFormData : undefined
       );
+      setNewPrimaryImage(null);
       if (res.isSuccess) {
         notification.success({ message: res.message });
-        form.resetFields();
         router.refresh();
       } else {
         notification.error({ message: res.message });
@@ -184,9 +185,10 @@ export default function ProductDetails({
                   showUploadList={true}
                   onChange={handlePrimaryChange}
                   onPreview={handlePreview}
+                  maxCount={1}
                   accept='image/*'
                 >
-                  {!newPrimaryImage && <AvatarUploadButton />}
+                  <AvatarUploadButton />
                 </Upload>
               </div>
             </Form.Item>
@@ -265,7 +267,7 @@ export default function ProductDetails({
               name='price'
               rules={[{ required: true, message: "Please input price!" }]}
             >
-              <Input type='number' addonBefore='$' />
+              <Input type='number' addonBefore='$' min={0} />
             </Form.Item>
           </Col>
 
@@ -275,7 +277,35 @@ export default function ProductDetails({
               name='weight'
               rules={[{ required: true, message: "Please input weight!" }]}
             >
-              <Input type='number' addonAfter='gram' />
+              <Input type='number' addonAfter='gram' min={0} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item<TProductUpdateRequestVM>
+              label='Promotion Status'
+              name='promotion'
+            >
+              <Switch
+                checkedChildren='Active'
+                unCheckedChildren='In Active'
+                onChange={() => setIsPromotion(!isPromotion)}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item<TProductUpdateRequestVM>
+              label='Promotion Price'
+              name='promotionPrice'
+              rules={[
+                {
+                  required: isPromotion,
+                  message: "Please input promotion price!",
+                },
+              ]}
+            >
+              <Input type='number' addonBefore='$' min={0} />
             </Form.Item>
           </Col>
 

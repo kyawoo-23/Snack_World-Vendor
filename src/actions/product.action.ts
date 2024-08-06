@@ -46,6 +46,7 @@ export const updateProductDetails = async (
         ...data,
         price: parseFloat(data.price.toString()),
         weight: parseFloat(data.weight.toString()),
+        promotionPrice: parseFloat(data.promotionPrice?.toString() ?? "0"),
         primaryImage: primaryImgRes.data?.url,
       }
     );
@@ -59,6 +60,7 @@ export const updateProductDetails = async (
       ...data,
       price: parseFloat(data.price.toString()),
       weight: parseFloat(data.weight.toString()),
+      promotionPrice: parseFloat(data.promotionPrice?.toString() ?? "0"),
     }
   );
 
