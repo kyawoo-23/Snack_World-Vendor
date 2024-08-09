@@ -15,13 +15,13 @@ import {
   Flex,
   Button,
   Switch,
+  Popconfirm,
 } from "antd";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { SelectProps, UploadFile, UploadProps } from "antd";
 import AvatarUploadButton from "@/components/Button/UploadButton";
 import TextArea from "antd/es/input/TextArea";
-import "./ProductCreateForm.css";
 import {
   toggleProductStatus,
   updateProductDetails,
@@ -92,16 +92,14 @@ export default function ProductDetails({
     form.resetFields();
   };
 
-  const handleToggleProductStatus = () => {
-    startStatusSubmission(async () => {
-      const res = await toggleProductStatus(params.id as string);
-      if (res.isSuccess) {
-        notification.success({ message: res.message });
-        router.refresh();
-      } else {
-        notification.error({ message: res.message });
-      }
-    });
+  const handleToggleProductStatus = async () => {
+    const res = await toggleProductStatus(params.id as string);
+    if (res.isSuccess) {
+      notification.success({ message: res.message });
+      router.refresh();
+    } else {
+      notification.error({ message: res.message });
+    }
   };
 
   const tagRender: TagRender = (props) => {
@@ -206,13 +204,20 @@ export default function ProductDetails({
 
           <Col span={12}>
             <Form.Item label='Status'>
-              <Switch
-                checkedChildren='Active'
-                unCheckedChildren='In Active'
-                defaultChecked={initialValues?.isActive}
-                onChange={() => handleToggleProductStatus()}
-                loading={isStatusPending}
-              />
+              <Popconfirm
+                title='Confirmation'
+                description='Product status will be changed! Are you sure?'
+                onConfirm={() =>
+                  startStatusSubmission(() => handleToggleProductStatus())
+                }
+              >
+                <Switch
+                  checkedChildren='Active'
+                  unCheckedChildren='In Active'
+                  checked={initialValues?.isActive}
+                  loading={isStatusPending}
+                />
+              </Popconfirm>
             </Form.Item>
           </Col>
 

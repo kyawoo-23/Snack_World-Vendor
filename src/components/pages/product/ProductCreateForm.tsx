@@ -20,7 +20,6 @@ import { useState, useTransition } from "react";
 import type { SelectProps, UploadFile, UploadProps } from "antd";
 import AvatarUploadButton from "@/components/Button/UploadButton";
 import TextArea from "antd/es/input/TextArea";
-import "./ProductCreateForm.css";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { createProduct } from "@/actions/product.action";
 import { TProductCreateRequestVM } from "@/utils/models/product.model";
@@ -65,7 +64,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
       if (res.isSuccess) {
         notification.success({ message: res.message });
         form.resetFields();
-        router.push("/product");
+        router.push(`/product?updated=${new Date().getTime()}`);
       } else {
         notification.error({ message: res.message });
       }

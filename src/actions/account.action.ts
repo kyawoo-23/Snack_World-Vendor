@@ -2,7 +2,22 @@
 
 import { patch, post } from "@/utils/api";
 import { BaseResponse } from "@/utils/constants/response.type";
-import { TAccountCreateRequest } from "@/utils/models/account.model";
+import {
+  TAccountCreateRequest,
+  TAccountUpdateRequest,
+} from "@/utils/models/account.model";
+
+export const updateAccount = async (
+  id: string,
+  data: TAccountUpdateRequest
+): Promise<BaseResponse> => {
+  const res = await patch<BaseResponse, TAccountUpdateRequest>(
+    `vendor-user/${id}`,
+    data
+  );
+
+  return res;
+};
 
 export const createAccount = async (
   data: TAccountCreateRequest
