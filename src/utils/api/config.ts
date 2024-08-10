@@ -1,4 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
+import { COOKIE } from "@/utils/constants/cookie.type";
+import { getCookie } from "cookies-next";
+import { cookies } from "next/headers";
 
 // Create an instance of Axios with default configuration
 export const axiosAPI = axios.create({
@@ -10,7 +13,9 @@ export const axiosAPI = axios.create({
 
 axiosAPI.interceptors.request.use(
   (config) => {
-    config.headers["Authorization"] = `Bearer `;
+    const accessToken = getCookie(COOKIE.TOKEN, { cookies });
+    console.log("ACCESS TOKEN", accessToken);
+    config.headers["Authorization"] = `Bearer ${accessToken}`;
     // console.log("Config: ", config);
     return config;
   },
@@ -25,7 +30,10 @@ axiosAPI.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
-    console.log("Error: ", error);
+    if (error.response?.status === 401) {
+      throw new Error("Unauthorized, Please logout and login again.");
+    }
+
     return Promise.reject(error);
   }
 );

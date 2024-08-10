@@ -4,10 +4,10 @@ type ResponseWithMessage = {
   error: string;
 };
 
-interface ResponseWithData<T> extends ResponseWithMessage {
+type ResponseWithData<T> = {
   data: T;
-}
+} & ResponseWithMessage;
 
 export type BaseResponse<T = void> = T extends void
   ? ResponseWithMessage
-  : ResponseWithMessage & Partial<ResponseWithData<T>>;
+  : ResponseWithData<T>;
