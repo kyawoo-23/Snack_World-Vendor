@@ -12,7 +12,9 @@ type Props = {
   account: VendorUser;
 };
 
-export default function AccountDetails({ account, roles }: Props) {
+export default function ProfileDetails({ roles, account }: Props) {
+  const { password, ...accountWithoutPassword } = account;
+
   const router = useRouter();
   const { notification } = App.useApp();
   const [isPending, startSubmission] = useTransition();
@@ -25,8 +27,6 @@ export default function AccountDetails({ account, roles }: Props) {
       const res = await updateAccount(account.vendorUserId, values);
       if (res.isSuccess) {
         notification.success({ message: res.message });
-        form.resetFields();
-        router.push(`/account?updated=${new Date().getTime()}`);
       } else {
         notification.error({ message: res.message });
       }
@@ -37,13 +37,16 @@ export default function AccountDetails({ account, roles }: Props) {
     form.resetFields();
   };
 
+  const strongPasswordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
   return (
     <Form<TAccountUpdateRequest>
       form={form}
       name='account'
       layout='vertical'
       onFinish={onFinish}
-      initialValues={account}
+      initialValues={accountWithoutPassword}
       autoComplete='off'
       style={{ maxWidth: "480px" }}
     >
@@ -64,6 +67,20 @@ export default function AccountDetails({ account, roles }: Props) {
         ]}
       >
         <Input />
+      </Form.Item>
+
+      <Form.Item<TAccountUpdateRequest>
+        label='Password'
+        name='password'
+        rules={[
+          {
+            pattern: strongPasswordRegex,
+            message:
+              "Password must be at least 8 characters long, include one uppercase letter, one lowercase letter, one number, and one special character.",
+          },
+        ]}
+      >
+        <Input.Password />
       </Form.Item>
 
       <Form.Item<TAccountUpdateRequest>

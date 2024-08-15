@@ -27,6 +27,7 @@ export default function LoginPage() {
 
         setCookie(COOKIE.TOKEN, res.data.accessToken);
         const user = {
+          name: res.data.name,
           email: res.data.email,
           id: res.data.sub,
           role: res.data.role,

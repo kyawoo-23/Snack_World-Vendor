@@ -14,7 +14,6 @@ export const axiosAPI = axios.create({
 axiosAPI.interceptors.request.use(
   (config) => {
     const accessToken = getCookie(COOKIE.TOKEN, { cookies });
-    console.log("ACCESS TOKEN", accessToken);
     config.headers["Authorization"] = `Bearer ${accessToken}`;
     // console.log("Config: ", config);
     return config;

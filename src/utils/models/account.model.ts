@@ -7,5 +7,6 @@ export type TAccountCreateRequest = {
 export type TAccountUpdateRequest = {
   name?: string;
   email?: string;
+  password?: string;
   vendorUserRoleId?: string;
 };

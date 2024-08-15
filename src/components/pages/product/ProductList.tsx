@@ -2,12 +2,27 @@
 
 import Image from "next/image";
 import { Product } from "@/prisma-types";
-import { Table, TableColumnsType, Button, Tag } from "antd";
+import {
+  Table,
+  TableColumnsType,
+  Button,
+  Tag,
+  Popconfirm,
+  Switch,
+  App,
+} from "antd";
 import { MdModeEditOutline } from "react-icons/md";
 import Link from "next/link";
 import { calculateTotalStock } from "@/utils/shared";
+import { useTransition } from "react";
+import { toggleProductStatus } from "@/actions/product.action";
+import { useRouter } from "next/navigation";
 
 export default function ProductList({ products }: { products: Product[] }) {
+  const [isToggling, startToggling] = useTransition();
+  const { message } = App.useApp();
+  const router = useRouter();
+
   const columns: TableColumnsType<Product> = [
     {
       title: "Image",
@@ -53,13 +68,20 @@ export default function ProductList({ products }: { products: Product[] }) {
     {
       title: "Status",
       dataIndex: "isActive",
-      render: (active) => {
-        return active ? (
-          <Tag color='green'>Active</Tag>
-        ) : (
-          <Tag color='red'>In Active</Tag>
-        );
-      },
+      render: (isActive, record) => (
+        <Popconfirm
+          title='Confirmation'
+          description='Product status will be changed! Are you sure?'
+          onConfirm={() => startToggling(() => toggleStatus(record.productId))}
+        >
+          <Switch
+            checkedChildren='Active'
+            unCheckedChildren='InActive'
+            checked={isActive}
+            loading={isToggling}
+          />
+        </Popconfirm>
+      ),
     },
     {
       title: "Action",
@@ -73,5 +95,16 @@ export default function ProductList({ products }: { products: Product[] }) {
       },
     },
   ];
+
+  const toggleStatus = async (id: string) => {
+    const res = await toggleProductStatus(id);
+    if (res.isSuccess) {
+      message.success(res.message);
+      router.refresh();
+    } else {
+      message.error(res.message);
+    }
+  };
+
   return <Table columns={columns} dataSource={products} />;
 }

@@ -5,6 +5,7 @@ export type TLoginRequest = {
 
 export type TLoginResponse = {
   accessToken: string;
+  name: string;
   role: string;
   sub: string;
   email: string;
