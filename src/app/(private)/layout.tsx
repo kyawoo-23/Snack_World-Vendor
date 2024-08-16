@@ -13,7 +13,7 @@ export default function layout({
       <SideBar />
       <div className='flex flex-col w-full'>
         <Navbar />
-        <Layout className='py-4 px-2 max-w-[1440px]'>
+        <Layout className='py-4 px-2 w-full max-w-[1440px] mx-auto'>
           <Content style={{ margin: "0 16px" }}>{children}</Content>
         </Layout>
       </div>

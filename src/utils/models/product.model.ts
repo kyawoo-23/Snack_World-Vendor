@@ -1,3 +1,10 @@
+import {
+  Category,
+  Product,
+  ProductVariant,
+  Variant,
+  Vendor,
+} from "@/prisma-types";
 import { UploadProps } from "antd";
 
 export type TProductCreateRequestVM = {
@@ -46,3 +53,10 @@ export type TProductUpdateRequest = {
   promotionPrice?: number;
   primaryImage?: string;
 };
+
+type TProductVariant = ProductVariant & { variant: Variant };
+
+export type TProductDetailsResponse = Product &
+  Category &
+  Vendor &
+  TProductVariant;

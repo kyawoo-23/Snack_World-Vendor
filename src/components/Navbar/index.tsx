@@ -39,7 +39,7 @@ export default function Navbar() {
 
   return (
     <div className='h-14 w-full bg-white flex items-center'>
-      <div className='max-w-[1440px] w-full px-6'>
+      <div className='max-w-[1440px] w-full px-6 mx-auto'>
         <Dropdown.Button
           type='text'
           icon={<DownOutlined />}
