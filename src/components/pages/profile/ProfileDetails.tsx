@@ -13,8 +13,6 @@ type Props = {
 };
 
 export default function ProfileDetails({ roles, account }: Props) {
-  const { password, ...accountWithoutPassword } = account;
-
   const router = useRouter();
   const { notification } = App.useApp();
   const [isPending, startSubmission] = useTransition();
@@ -46,7 +44,7 @@ export default function ProfileDetails({ roles, account }: Props) {
       name='account'
       layout='vertical'
       onFinish={onFinish}
-      initialValues={accountWithoutPassword}
+      initialValues={account}
       autoComplete='off'
       style={{ maxWidth: "480px" }}
     >
