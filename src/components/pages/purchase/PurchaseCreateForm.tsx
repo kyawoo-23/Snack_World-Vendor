@@ -1,8 +1,12 @@
 "use client";
 
+import { vendorPurchaseProduct } from "@/actions/purchase.action";
 import { Product, ProductVariant } from "@/prisma-types";
 import { TProductDetailsResponse } from "@/utils/models/product.model";
+import { TVendorPurchaseRequest } from "@/utils/models/purchase.model";
+import { generatePurchaseCode } from "@/utils/shared";
 import {
+  App,
   AutoComplete,
   Button,
   Flex,
@@ -14,7 +18,8 @@ import {
   Tag,
 } from "antd";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { MdOutlineInbox } from "react-icons/md";
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
 
@@ -62,8 +67,11 @@ type Props = {
 };
 
 export default function PurchaseCreateForm({ products }: Props) {
+  const router = useRouter();
+  const { notification } = App.useApp();
+  const [isPending, startSubmission] = useTransition();
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
-  const [flavorsOptions, setFlavorsOptions] = useState<
+  const [variantsOptions, setVariantsOptions] = useState<
     {
       label: JSX.Element;
       value: string;
@@ -83,21 +91,21 @@ export default function PurchaseCreateForm({ products }: Props) {
   >([]);
   const [selectForm] = Form.useForm();
 
-  const groupedProducts = products.reduce(
-    (acc, product) => {
-      const { category } = product;
+  const groupedProducts = useMemo(() => {
+    return products.reduce(
+      (acc, product) => {
+        const { category } = product;
 
-      if (!acc[category.name]) {
-        acc[category.name] = [];
-      }
+        if (!acc[category.name]) {
+          acc[category.name] = [];
+        }
 
-      acc[category.name].push(product);
-      return acc;
-    },
-    {} as Record<string, typeof products>
-  );
-
-  console.log(groupedProducts);
+        acc[category.name].push(product);
+        return acc;
+      },
+      {} as Record<string, typeof products>
+    );
+  }, [products]);
 
   const productOptions = Object.keys(groupedProducts).map((categoryName) => ({
     label: <Title title={categoryName} />,
@@ -113,8 +121,8 @@ export default function PurchaseCreateForm({ products }: Props) {
 
   useEffect(() => {
     if (selectedProduct) {
-      selectForm.setFieldsValue({ flavor: undefined });
-      setFlavorsOptions(
+      selectForm.setFieldsValue({ variant: undefined });
+      setVariantsOptions(
         products
           .find((product) => product.productId === selectedProduct)
           ?.productVariant.map((variant) => renderFlavorItem(variant)) ?? []
@@ -124,37 +132,76 @@ export default function PurchaseCreateForm({ products }: Props) {
 
   const addItemsToPurchase: FormProps<{
     product: string;
-    flavor: string;
+    variant: string;
   }>["onFinish"] = (values) => {
-    console.log(values);
-
     const selectedProduct = products.find((product) =>
       product.productVariant.some(
-        (variant) => variant.productVariantId === values.flavor
+        (variant) => variant.productVariantId === values.variant
       )
     );
 
     if (selectedProduct) {
       const selectedVariant = selectedProduct.productVariant.find(
-        (variant) => variant.productVariantId === values.flavor
+        (variant) => variant.productVariantId === values.variant
       );
 
       if (selectedVariant) {
-        setItemsToPurchase((prevItems) => [
-          ...prevItems,
-          {
-            productId: selectedProduct.productId,
-            productVariantId: selectedVariant.productVariantId,
-            variantName: selectedVariant.variant.name,
-            variantColor: selectedVariant.variant.color,
-            price: selectedProduct.price,
-            name: selectedProduct.name,
-            image: selectedProduct.primaryImage,
-            quantity: 1,
-          },
-        ]);
+        setItemsToPurchase((prevItems) => {
+          const existingItemIndex = prevItems.findIndex(
+            (item) => item.productVariantId === values.variant
+          );
+
+          if (existingItemIndex !== -1) {
+            // Product with the same variant already exists, update the quantity
+            const updatedItems = [...prevItems];
+            updatedItems[existingItemIndex] = {
+              ...updatedItems[existingItemIndex],
+              quantity: updatedItems[existingItemIndex].quantity + 1,
+            };
+            return updatedItems;
+          } else {
+            // Product does not exist, add a new one
+            return [
+              ...prevItems,
+              {
+                productId: selectedProduct.productId,
+                productVariantId: selectedVariant.productVariantId,
+                variantName: selectedVariant.variant.name,
+                variantColor: selectedVariant.variant.color,
+                price: 0,
+                name: selectedProduct.name,
+                image: selectedProduct.primaryImage,
+                quantity: 1,
+              },
+            ];
+          }
+        });
       }
     }
+  };
+
+  const handlePurchase = async () => {
+    startSubmission(async () => {
+      const request: TVendorPurchaseRequest = {
+        purchaseCode: generatePurchaseCode(),
+        purchaseProducts: itemsToPurchase.map((item) => ({
+          purchasePrice: item.price,
+          quantity: item.quantity,
+          productId: item.productId,
+          productVariantId: item.productVariantId,
+        })),
+      };
+
+      console.log("Purchasing items", request);
+      const res = await vendorPurchaseProduct(request);
+      if (res.isSuccess) {
+        notification.success({ message: res.message });
+        selectForm.resetFields();
+        router.push(`/purchase?updated=${new Date().getTime()}`);
+      } else {
+        notification.error({ message: res.message });
+      }
+    });
   };
 
   return (
@@ -181,13 +228,15 @@ export default function PurchaseCreateForm({ products }: Props) {
                 </AutoComplete>
               </Form.Item>
               <Form.Item
-                name='flavor'
-                rules={[{ required: true, message: "Please select a flavor!" }]}
+                name='variant'
+                rules={[
+                  { required: true, message: "Please select a variant!" },
+                ]}
               >
                 <Select
-                  placeholder='Select flavor'
+                  placeholder='Select variant'
                   style={{ width: 200 }}
-                  options={flavorsOptions}
+                  options={variantsOptions}
                 />
               </Form.Item>
               <Form.Item>
@@ -199,8 +248,9 @@ export default function PurchaseCreateForm({ products }: Props) {
           </div>
         </div>
       </Form>
+
       {itemsToPurchase.map((product, idx) => (
-        <div key={idx} className='flex items-center justify-between gap-3'>
+        <div key={idx} className='flex items-center justify-between gap-3 mb-3'>
           <div className='flex items-center gap-2'>
             <Image
               className='rounded object-cover'
@@ -212,11 +262,55 @@ export default function PurchaseCreateForm({ products }: Props) {
             {product.name} -
             <Tag color={product.variantColor}>{product.variantName}</Tag>
           </div>
-          <div className='flex items-center gap-1'>
-            <RiMoneyDollarCircleLine /> {product.price}
+          <div className='flex items-center gap-2'>
+            <Input
+              min={1}
+              type='number'
+              placeholder='Quantity'
+              prefix={<MdOutlineInbox />}
+              value={product.quantity}
+              onChange={(e) => {
+                setItemsToPurchase((prevItems) => {
+                  const newItems = [...prevItems];
+                  newItems[idx].quantity = Number(e.target.value);
+                  return newItems;
+                });
+              }}
+            />
+            <Input
+              min={0}
+              type='number'
+              placeholder='Purchasing price'
+              prefix={<RiMoneyDollarCircleLine />}
+              value={product.price}
+              onChange={(e) => {
+                setItemsToPurchase((prevItems) => {
+                  const newItems = [...prevItems];
+                  newItems[idx].price = Number(e.target.value);
+                  return newItems;
+                });
+              }}
+            />
           </div>
         </div>
       ))}
+
+      {itemsToPurchase.length > 0 && (
+        <div className='w-full bg-white rounded-md flex items-center justify-end'>
+          <Button
+            type='primary'
+            size='large'
+            loading={isPending}
+            onClick={handlePurchase}
+          >
+            Purchase $
+            {itemsToPurchase.reduce(
+              (acc, item) => acc + item.price * item.quantity,
+              0
+            )}
+          </Button>
+        </div>
+      )}
     </>
   );
 }

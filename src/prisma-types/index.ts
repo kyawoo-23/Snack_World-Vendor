@@ -151,7 +151,8 @@ export type PurchaseProduct = {
   purchasePrice: number;
   quantity: number;
   productId: string;
-  productVariant: string;
+  productVariantId: string;
+  productVariant: ProductVariant;
   product: Product;
   vendorPurchaseId: string;
   vendorPurchase: VendorPurchase;

@@ -15,3 +15,21 @@ export const calculateTotalStock = (products: any[]) => {
 export const getImageKey = (image: string): string => {
   return image.split("/").pop() as string;
 };
+
+export function generatePurchaseCode() {
+  const now = new Date();
+  const pad = (num: number): string => String(num).padStart(2, "0");
+
+  const dateTime = [
+    now.getFullYear(),
+    pad(now.getMonth() + 1),
+    pad(now.getDate()),
+    pad(now.getHours()),
+    pad(now.getMinutes()),
+    pad(now.getSeconds()),
+  ].join("");
+
+  const milliseconds = now.getMilliseconds();
+
+  return `PUR-${dateTime}-${milliseconds}`;
+}

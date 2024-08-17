@@ -260,6 +260,7 @@ export default function ProductDetails({
                   label: variant.name,
                   value: variant.variantId,
                 }))}
+                disabled={true}
                 mode='multiple'
                 allowClear
               />

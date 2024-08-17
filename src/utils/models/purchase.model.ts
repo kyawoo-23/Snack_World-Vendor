@@ -1,5 +1,5 @@
 export type TVendorPurchaseRequest = {
-  vendorUserId: string;
+  purchaseCode: string;
   purchaseProducts: {
     purchasePrice: number;
     quantity: number;
