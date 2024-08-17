@@ -14,7 +14,7 @@ export default async function page() {
         href: "/purchase/create",
       }}
     >
-      <PurchaseList />
+      <PurchaseList purchases={purchases} />
     </MainLayout>
   );
 }

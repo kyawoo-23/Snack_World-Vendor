@@ -106,5 +106,11 @@ export default function ProductList({ products }: { products: Product[] }) {
     }
   };
 
-  return <Table columns={columns} dataSource={products} />;
+  return (
+    <Table
+      columns={columns}
+      dataSource={products}
+      rowKey={(record) => record.productId}
+    />
+  );
 }

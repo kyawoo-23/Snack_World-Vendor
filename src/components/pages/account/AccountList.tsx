@@ -98,5 +98,11 @@ export default function AccountList({ data }: { data: VendorUser[] }) {
     }
   };
 
-  return <Table columns={columns} dataSource={data} />;
+  return (
+    <Table
+      columns={columns}
+      dataSource={data}
+      rowKey={(record) => record.vendorUserId}
+    />
+  );
 }
