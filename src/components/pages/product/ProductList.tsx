@@ -2,15 +2,7 @@
 
 import Image from "next/image";
 import { Product } from "@/prisma-types";
-import {
-  Table,
-  TableColumnsType,
-  Button,
-  Tag,
-  Popconfirm,
-  Switch,
-  App,
-} from "antd";
+import { Table, TableColumnsType, Button, Popconfirm, Switch, App } from "antd";
 import { MdModeEditOutline } from "react-icons/md";
 import Link from "next/link";
 import { calculateTotalStock } from "@/utils/shared";

@@ -1,5 +1,6 @@
 "use client";
 
+import { getProfile } from "@/actions/account.action";
 import { login } from "@/actions/login.action";
 import { COOKIE } from "@/utils/constants/cookie.type";
 import { LOCAL_STORAGE } from "@/utils/constants/local-storage.type";
@@ -33,6 +34,9 @@ export default function LoginPage() {
           role: res.data.role,
         };
         setLocalStorage(LOCAL_STORAGE.USER, JSON.stringify(user));
+
+        const vendorId = await getProfile();
+        setLocalStorage(LOCAL_STORAGE.VENDOR_ID, vendorId.data.vendorId);
 
         router.push("/account");
       } else {
