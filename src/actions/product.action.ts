@@ -122,7 +122,6 @@ export const createProduct = async (
     ...data,
     price: parseFloat(data.price.toString()),
     weight: parseFloat(data.weight.toString()),
-    vendorId: process.env.NEXT_PUBLIC_VENDOR_ID || "",
     primaryImage: primaryImgRes.data?.url,
     productImages: productImagesRes
       .map((res) => res.data?.url)

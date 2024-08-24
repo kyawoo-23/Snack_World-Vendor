@@ -21,7 +21,6 @@ export type Announcement = {
   announcementId: string;
   title: string;
   content: string;
-  image: string;
   type: string;
   createdAt: Date;
   updatedAt: Date;

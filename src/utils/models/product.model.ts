@@ -16,7 +16,6 @@ export type TProductCreateRequestVM = {
   weight: number;
   primaryImage?: UploadProps;
   productImages?: UploadProps;
-  vendorId: string;
 };
 
 export type TProductCreateRequest = {
@@ -28,7 +27,6 @@ export type TProductCreateRequest = {
   weight: number;
   primaryImage?: string;
   productImages?: string[];
-  vendorId: string;
 };
 
 export type TProductUpdateRequestVM = {

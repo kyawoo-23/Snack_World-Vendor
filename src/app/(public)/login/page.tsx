@@ -36,7 +36,7 @@ export default function LoginPage() {
         setLocalStorage(LOCAL_STORAGE.USER, JSON.stringify(user));
 
         const vendorId = await getProfile();
-        setLocalStorage(LOCAL_STORAGE.VENDOR_ID, vendorId.data.vendorId);
+        setCookie(COOKIE.VENDOR_ID, vendorId.data.vendorId);
 
         router.push("/account");
       } else {

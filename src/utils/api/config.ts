@@ -14,7 +14,10 @@ export const axiosAPI = axios.create({
 axiosAPI.interceptors.request.use(
   (config) => {
     const accessToken = getCookie(COOKIE.TOKEN, { cookies });
+    const vendorId = getCookie(COOKIE.VENDOR_ID, { cookies });
+
     config.headers["Authorization"] = `Bearer ${accessToken}`;
+    config.headers["Vendor"] = vendorId;
     // console.log("Config: ", config);
     return config;
   },

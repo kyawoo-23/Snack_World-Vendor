@@ -20,13 +20,8 @@ export default function AccountCreateForm({ roles }: Props) {
   const onFinish: FormProps<TAccountCreateRequest>["onFinish"] = async (
     values
   ) => {
-    const request = {
-      ...values,
-      vendorId: process.env.NEXT_PUBLIC_VENDOR_ID,
-    };
-
     startSubmission(async () => {
-      const res = await createAccount(request);
+      const res = await createAccount(values);
       if (res.isSuccess) {
         notification.success({ message: res.message });
         form.resetFields();
