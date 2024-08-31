@@ -10,3 +10,7 @@ export type TAccountUpdateRequest = {
   password?: string;
   vendorUserRoleId?: string;
 };
+
+export type TVendorLogoUpdateRequest = {
+  image?: string;
+};

@@ -11,10 +11,24 @@ import { App, Dropdown, MenuProps } from "antd";
 import { deleteCookie } from "cookies-next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Navbar() {
   const router = useRouter();
   const { notification } = App.useApp();
+  const [user, setUser] = useState<{
+    name: string;
+    email: string;
+    id: string;
+    role: string;
+  }>(() => {
+    try {
+      const storedUser = getLocalStorage(LOCAL_STORAGE.USER);
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch {
+      return null;
+    }
+  });
 
   const handleLogout = () => {
     removeLocalStorage(LOCAL_STORAGE.USER);
@@ -46,10 +60,10 @@ export default function Navbar() {
           menu={{ items }}
           className='flex justify-end'
         >
-          <Link href='profile'>
+          <Link href='/profile'>
             <div className='flex items-center gap-3'>
               <UserOutlined />
-              {JSON.parse(getLocalStorage(LOCAL_STORAGE.USER) || "")?.name}
+              {user?.name}
             </div>
           </Link>
         </Dropdown.Button>

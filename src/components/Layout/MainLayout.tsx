@@ -23,7 +23,7 @@ export default function MainLayout({
           </Link>
         )}
       </section>
-      <section className='p-4 rounded bg-white'>{children}</section>
+      <section className='p-4 rounded bg-white h-full'>{children}</section>
     </main>
   );
 }

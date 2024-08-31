@@ -6,7 +6,44 @@ import { BaseResponse } from "@/utils/constants/response.type";
 import {
   TAccountCreateRequest,
   TAccountUpdateRequest,
+  TVendorLogoUpdateRequest,
 } from "@/utils/models/account.model";
+import { utapi } from "@/utils/library/uploadthing";
+
+export const updateVendorLogo = async (
+  imageKey?: string,
+  formData?: FormData
+): Promise<BaseResponse> => {
+  const newLogo = formData?.get("image") as File;
+  if (newLogo) {
+    if (imageKey) {
+      const deleted = await utapi.deleteFiles(imageKey);
+      if (!deleted) {
+        return {
+          isSuccess: false,
+          message: "Failed to delete image",
+          error: "Error deleting in UTAPI",
+        };
+      }
+    }
+
+    const uploadedLogo = await utapi.uploadFiles(newLogo);
+
+    const res = await patch<BaseResponse, TVendorLogoUpdateRequest>(
+      "vendor/update-logo",
+      {
+        image: uploadedLogo.data?.url,
+      }
+    );
+
+    return res;
+  }
+  return {
+    isSuccess: false,
+    message: "No image found",
+    error: "No image found",
+  };
+};
 
 export const updateAccount = async (
   id: string,
