@@ -12,6 +12,7 @@ import { setCookie } from "cookies-next";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import Logo from "@/app/assets/logo/SNACK_WORLD.png";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,7 +39,7 @@ export default function LoginPage() {
         const vendorId = await getProfile();
         setCookie(COOKIE.VENDOR_ID, vendorId.data.vendorId);
 
-        router.push("/account");
+        router.push("/order");
       } else {
         console.log(res.message);
         notification.error({ message: res.message });
@@ -52,7 +53,7 @@ export default function LoginPage() {
       <div className='w-[420px] h-[420px] absolute bg-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-2xl p-8'>
         <Image
           className='mx-auto'
-          src='/assets/logo/SNACK_WORLD.png'
+          src={Logo}
           width={100}
           height={100}
           alt='logo'

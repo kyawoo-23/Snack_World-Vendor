@@ -6,7 +6,7 @@ import { get } from "@/utils/api";
 import React from "react";
 
 export default async function page() {
-  const { data: users } = await get<VendorUser[]>("/vendor-user");
+  const { data: users } = await get<VendorUser[]>("vendor-user");
 
   return (
     <MainLayout

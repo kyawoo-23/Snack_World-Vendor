@@ -4,7 +4,7 @@ import { VendorPurchase } from "@/prisma-types";
 import { get } from "@/utils/api";
 
 export default async function page() {
-  const { data: purchases } = await get<VendorPurchase[]>("/vendor-purchase");
+  const { data: purchases } = await get<VendorPurchase[]>("vendor-purchase");
 
   return (
     <MainLayout

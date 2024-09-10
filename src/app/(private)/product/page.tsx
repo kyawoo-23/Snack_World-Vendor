@@ -4,7 +4,7 @@ import { Product } from "@/prisma-types";
 import { get } from "@/utils/api";
 
 export default async function page() {
-  const { data: products } = await get<Product[]>("/product");
+  const { data: products } = await get<Product[]>("product");
 
   return (
     <MainLayout

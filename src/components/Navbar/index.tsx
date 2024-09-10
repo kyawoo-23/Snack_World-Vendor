@@ -11,11 +11,12 @@ import { App, Dropdown, MenuProps } from "antd";
 import { deleteCookie } from "cookies-next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const router = useRouter();
   const { notification } = App.useApp();
+  const [isClient, setIsClient] = useState(false);
   const [user, setUser] = useState<{
     name: string;
     email: string;
@@ -51,6 +52,10 @@ export default function Navbar() {
     },
   ];
 
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return (
     <div className='h-14 w-full bg-white flex items-center'>
       <div className='max-w-[1440px] w-full px-6 mx-auto'>
@@ -63,7 +68,7 @@ export default function Navbar() {
           <Link href='/profile'>
             <div className='flex items-center gap-3'>
               <UserOutlined />
-              {user?.name}
+              {isClient && user?.name}
             </div>
           </Link>
         </Dropdown.Button>
