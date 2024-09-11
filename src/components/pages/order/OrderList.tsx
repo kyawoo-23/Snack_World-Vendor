@@ -1,9 +1,10 @@
 "use client";
 
-import { CustomerOrderVendor } from "@/prisma-types";
-import { Table, TableColumnsType, Button } from "antd";
 import Link from "next/link";
+import { CustomerOrderVendor } from "@/prisma-types";
+import { Table, TableColumnsType, Button, Tag } from "antd";
 import { MdOutlineMoreHoriz } from "react-icons/md";
+import { getVendorOrderStatus } from "@/components/pages/order/config";
 
 type Props = {
   orders: CustomerOrderVendor[];
@@ -39,15 +40,13 @@ export default function OrderList({ orders }: Props) {
       ),
     },
     {
-      title: "Total Amount ($)",
-      dataIndex: "customerOrder",
-      render: (order) => order.totalPrice,
-    },
-    {
       title: "Status",
-      dataIndex: "customerOrderVendorStatus",
-      render: (status) => {
-        return status;
+      render: (record) => {
+        return (
+          <Tag color={getVendorOrderStatus(record.customerOrderVendorStatus)}>
+            {record.customerOrderVendorStatus}
+          </Tag>
+        );
       },
     },
     {
