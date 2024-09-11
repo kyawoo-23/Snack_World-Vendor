@@ -1,12 +1,15 @@
 "use client";
 
-import { acceptOrder } from "@/actions/order.action";
+import {
+  acceptOrder,
+  startDeliveryOrder,
+  endDeliveryOrder,
+} from "@/actions/order.action";
 import { CustomerOrderVendor } from "@/prisma-types";
 import { CUSTOMER_ORDER_VENDOR_STATUS } from "@/utils/constants";
-import { QuestionCircleOutlined } from "@ant-design/icons";
-import { Button, Popconfirm, ConfigProvider, App } from "antd";
+import { Button, ConfigProvider, App, Modal, Alert } from "antd";
 import { createStyles } from "antd-style";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 
 const useStyle = createStyles(({ prefixCls, css }) => ({
   linearGradientButton: css`
@@ -41,40 +44,117 @@ type Props = {
 };
 
 export default function OrderDetailsAction({ order }: Props) {
-  const { notification } = App.useApp();
-  const [isPending, startSubmission] = useTransition();
   const { styles } = useStyle();
+  const { notification } = App.useApp();
+  const [open, setOpen] = useState(false);
+  const [isPending, startSubmission] = useTransition();
+  const [modalContent, setModalContent] = useState<{
+    title: string;
+    text: string;
+    onOk: () => void;
+  }>({ title: "", text: "", onOk: () => {} });
 
   const reject = () => {
-    console.log("Rejecting Order!!");
+    setModalContent({
+      title: "Rejecting Order!!",
+      text: "Are you sure to reject this order?",
+      onOk: () => {},
+    });
+    setOpen(true);
   };
 
   const accept = () => {
-    startSubmission(async () => {
-      const res = await acceptOrder({
-        customerOrderId: order.customerOrderId,
-        customerOrderVendorId: order.customerOrderVendorId,
-        type: "SELF",
-        deliveryName: order.customerOrder.orderCode + "_Self",
-      });
-      if (res.isSuccess) {
-        notification.success({ message: res.message });
-      } else {
-        console.log(res.message);
-        notification.error({ message: res.message });
-      }
+    setModalContent({
+      title: "Accepting Order!!",
+      text: "Are you sure to accept this order?",
+      onOk: () => {
+        startSubmission(async () => {
+          const res = await acceptOrder({
+            customerOrderId: order.customerOrderId,
+            customerOrderVendorId: order.customerOrderVendorId,
+            type: "SELF",
+            deliveryName: order.customerOrder.orderCode + "_Self",
+          });
+          if (res.isSuccess) {
+            notification.success({ message: res.message });
+          } else {
+            console.log(res.message);
+            notification.error({ message: res.message });
+          }
+          setOpen(false);
+        });
+      },
     });
+    setOpen(true);
   };
 
   const acceptWithSnackWorld = () => {
-    startSubmission(async () => {
-      const res = await acceptOrder({
-        customerOrderId: order.customerOrderId,
-        customerOrderVendorId: order.customerOrderVendorId,
-        type: "REQUEST",
-        deliveryName: order.customerOrder.orderCode + "_Snack World",
-      });
+    setModalContent({
+      title: "Accepting Order!!",
+      text: "Are you sure to accept this order?",
+      onOk: () => {
+        startSubmission(async () => {
+          const res = await acceptOrder({
+            customerOrderId: order.customerOrderId,
+            customerOrderVendorId: order.customerOrderVendorId,
+            type: "REQUEST",
+            deliveryName: order.customerOrder.orderCode + "_Snack World",
+          });
+          if (res.isSuccess) {
+            notification.success({ message: res.message });
+          } else {
+            console.log(res.message);
+            notification.error({ message: res.message });
+          }
+          setOpen(false);
+        });
+      },
     });
+    setOpen(true);
+  };
+
+  const startDelivery = () => {
+    setModalContent({
+      title: "Start Delivery!!",
+      text: "Are you sure to start delivery?",
+      onOk: () => {
+        startSubmission(async () => {
+          const res = await startDeliveryOrder(
+            order.deliveryOrder[0].deliveryOrderId
+          );
+          if (res.isSuccess) {
+            notification.success({ message: res.message });
+          } else {
+            console.log(res.message);
+            notification.error({ message: res.message });
+          }
+          setOpen(false);
+        });
+      },
+    });
+    setOpen(true);
+  };
+
+  const endDelivery = () => {
+    setModalContent({
+      title: "Finish Delivery!!",
+      text: "Are you sure to finish delivery?",
+      onOk: () => {
+        startSubmission(async () => {
+          const res = await endDeliveryOrder(
+            order.deliveryOrder[0].deliveryOrderId
+          );
+          if (res.isSuccess) {
+            notification.success({ message: res.message });
+          } else {
+            console.log(res.message);
+            notification.error({ message: res.message });
+          }
+          setOpen(false);
+        });
+      },
+    });
+    setOpen(true);
   };
 
   const renderButton = () => {
@@ -82,58 +162,66 @@ export default function OrderDetailsAction({ order }: Props) {
       case CUSTOMER_ORDER_VENDOR_STATUS.NEW:
         return (
           <div className='flex items-center gap-3'>
-            <Popconfirm
-              title='Rejecting Order!!'
-              description='Are you sure to reject this order?'
-              okText='Yes'
-              cancelText='No'
-              icon={<QuestionCircleOutlined style={{ color: "red" }} />}
-              onConfirm={reject}
-              okButtonProps={{ loading: isPending }}
-            >
-              <Button danger>Reject</Button>
-            </Popconfirm>
-            <Popconfirm
-              title='Accepting Order!!'
-              description='Are you sure to accept this order?'
-              okText='Yes'
-              cancelText='No'
-              onConfirm={accept}
-              okButtonProps={{ loading: isPending }}
-            >
-              <Button type='primary'>Accept Order</Button>
-            </Popconfirm>
+            <Button onClick={reject} danger>
+              Reject
+            </Button>
+
+            <Button type='primary' onClick={accept}>
+              Accept Order
+            </Button>
 
             <ConfigProvider
               button={{
                 className: styles.linearGradientButton,
               }}
             >
-              <Popconfirm
-                title='Snack World Service!!'
-                description='Are you sure to accept this order?'
-                okText='Yes'
-                cancelText='No'
-                onConfirm={acceptWithSnackWorld}
-                okButtonProps={{ loading: isPending }}
-              >
-                <Button type='primary'>Accept with Snack World</Button>
-              </Popconfirm>
+              <Button type='primary' onClick={acceptWithSnackWorld}>
+                Accept with Snack World
+              </Button>
             </ConfigProvider>
           </div>
         );
       case CUSTOMER_ORDER_VENDOR_STATUS.ACCEPTED:
-        return <button className='btn btn-primary'>Prepare Order</button>;
+        return order.deliveryOrder[0].type === "SELF" ? (
+          <Button type='primary' onClick={startDelivery}>
+            Start Delivery
+          </Button>
+        ) : (
+          <Alert
+            message='Delivery is being made by Snack World'
+            type='info'
+            showIcon
+          />
+        );
       case CUSTOMER_ORDER_VENDOR_STATUS.CANCELLED:
         return <button className='btn btn-primary'>Order Prepared</button>;
       case CUSTOMER_ORDER_VENDOR_STATUS.DELIVERING:
-        return <button className='btn btn-primary'>Order Delivered</button>;
+        return (
+          <Button type='primary' onClick={endDelivery}>
+            Finish Delivery
+          </Button>
+        );
       case CUSTOMER_ORDER_VENDOR_STATUS.DELIVERED:
+        return <button className='btn btn-primary'>Order Completed</button>;
+      case CUSTOMER_ORDER_VENDOR_STATUS.COMPLETED:
         return <button className='btn btn-primary'>Order Completed</button>;
       default:
         return null;
     }
   };
 
-  return renderButton();
+  return (
+    <>
+      {renderButton()}
+      <Modal
+        title={modalContent.title}
+        open={open}
+        onOk={modalContent.onOk}
+        confirmLoading={isPending}
+        onCancel={() => setOpen(false)}
+      >
+        <p>{modalContent.text}</p>
+      </Modal>
+    </>
+  );
 }

@@ -12,9 +12,45 @@ import {
   Table,
 } from "antd";
 import OrderDetailsAction from "@/components/pages/order/OrderDetailsAction";
+import {
+  CUSTOMER_ORDER_VENDOR_STATUS,
+  DELIVERY_ORDER_STATUS,
+} from "@/utils/constants";
 
 type Props = {
   order: CustomerOrderVendor;
+};
+
+const getVendorOrderStatus = (status: string) => {
+  switch (status) {
+    case CUSTOMER_ORDER_VENDOR_STATUS.NEW:
+      return "geekblue";
+    case CUSTOMER_ORDER_VENDOR_STATUS.ACCEPTED:
+      return "purple";
+    case CUSTOMER_ORDER_VENDOR_STATUS.COMPLETED:
+      return "green";
+    case CUSTOMER_ORDER_VENDOR_STATUS.CANCELLED:
+      return "red";
+    case CUSTOMER_ORDER_VENDOR_STATUS.DELIVERING:
+      return "orange";
+    case CUSTOMER_ORDER_VENDOR_STATUS.DELIVERED:
+      return "lime";
+    default:
+      return "default";
+  }
+};
+
+const getDeliveryStatus = (status: string) => {
+  switch (status) {
+    case DELIVERY_ORDER_STATUS.NEW:
+      return "geekblue";
+    case DELIVERY_ORDER_STATUS.DELIVERING:
+      return "orange";
+    case DELIVERY_ORDER_STATUS.DELIVERED:
+      return "green";
+    default:
+      return "default";
+  }
 };
 
 export default function OrderDetails({ order }: Props) {
@@ -64,7 +100,16 @@ export default function OrderDetails({ order }: Props) {
       key: "3",
       label: "Status",
       children: (
-        <Badge status='processing' text={order.customerOrderVendorStatus} />
+        <Badge
+          status={
+            order.customerOrderVendorStatus ===
+            CUSTOMER_ORDER_VENDOR_STATUS.COMPLETED
+              ? "success"
+              : "processing"
+          }
+          color={getVendorOrderStatus(order.customerOrderVendorStatus)}
+          text={order.customerOrderVendorStatus}
+        />
       ),
     },
     {
@@ -76,6 +121,26 @@ export default function OrderDetails({ order }: Props) {
       key: "5",
       label: "Total Amount ($)",
       children: order.customerOrder.totalPrice,
+    },
+    {
+      key: "6",
+      label:
+        order.customerOrderVendorStatus !== CUSTOMER_ORDER_VENDOR_STATUS.NEW
+          ? "Delivery Status"
+          : "",
+      children: order.customerOrderVendorStatus !==
+        CUSTOMER_ORDER_VENDOR_STATUS.NEW && (
+        <Badge
+          status={
+            order.deliveryOrder[0].deliveryOrderStatus ===
+            DELIVERY_ORDER_STATUS.DELIVERED
+              ? "success"
+              : "processing"
+          }
+          color={getDeliveryStatus(order.deliveryOrder[0].deliveryOrderStatus)}
+          text={order.deliveryOrder[0].deliveryOrderStatus}
+        />
+      ),
     },
   ];
 
@@ -125,7 +190,7 @@ export default function OrderDetails({ order }: Props) {
         </div>
 
         <div className='col-span-3'>
-          <h3 className='text-[16px] font-medium mb-4'>Ordered Products</h3>
+          <h3 className='text-[16px] font-medium mb-4'>Product List</h3>
           <Table
             columns={columns}
             dataSource={order.customerOrderVendorProduct}

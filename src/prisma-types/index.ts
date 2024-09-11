@@ -216,6 +216,7 @@ export type DeliveryOrder = {
   deliveryName: string;
   deliveryId: string;
   customerOrderVendorId: string;
+  type: "SELF" | "REQUEST";
   delivery?: Delivery;
   customerOrderVendor: CustomerOrderVendor;
   createdAt: Date;
