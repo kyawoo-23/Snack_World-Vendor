@@ -1,7 +1,17 @@
 "use client";
 
-import { CustomerOrderVendor } from "@/prisma-types";
-import { Badge, Descriptions, DescriptionsProps } from "antd";
+import {
+  CustomerOrderVendor,
+  CustomerOrderVendorProduct,
+} from "@/prisma-types";
+import {
+  Badge,
+  Descriptions,
+  DescriptionsProps,
+  TableColumnsType,
+  Table,
+} from "antd";
+import OrderDetailsAction from "@/components/pages/order/OrderDetailsAction";
 
 type Props = {
   order: CustomerOrderVendor;
@@ -69,22 +79,60 @@ export default function OrderDetails({ order }: Props) {
     },
   ];
 
-  return (
-    <div className='grid grid-cols-3 gap-4'>
-      <Descriptions
-        title='Customer Info'
-        layout='vertical'
-        bordered
-        items={userItems}
-      />
+  const columns: TableColumnsType<CustomerOrderVendorProduct> = [
+    {
+      title: "Name",
+      dataIndex: "productName",
+    },
+    {
+      title: "Variant",
+      dataIndex: "variantName",
+    },
+    {
+      title: "Quantity",
+      dataIndex: "quantity",
+    },
+    {
+      title: "Unit Price ($)",
+      dataIndex: "price",
+    },
+    {
+      title: "Total Price ($)",
+      render: (record) => record.price * record.quantity,
+    },
+  ];
 
-      <Descriptions
-        className='col-span-2'
-        title='Order Info'
-        layout='vertical'
-        bordered
-        items={orderItems}
-      />
-    </div>
+  return (
+    <>
+      <div className='grid grid-cols-3 gap-4'>
+        <Descriptions
+          title='Customer Info'
+          layout='vertical'
+          bordered
+          items={userItems}
+        />
+
+        <Descriptions
+          className='col-span-2'
+          title='Order Info'
+          layout='vertical'
+          bordered
+          items={orderItems}
+        />
+
+        <div className='flex justify-end col-span-3 mb-4 mt-2'>
+          <OrderDetailsAction order={order} />
+        </div>
+
+        <div className='col-span-3'>
+          <h3 className='text-[16px] font-medium mb-4'>Ordered Products</h3>
+          <Table
+            columns={columns}
+            dataSource={order.customerOrderVendorProduct}
+            rowKey={(record) => record.customerOrderVendorProductId}
+          />
+        </div>
+      </div>
+    </>
   );
 }

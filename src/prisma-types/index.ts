@@ -64,7 +64,6 @@ export type ProductVariant = {
   variant: Variant;
   product: Product;
   purchaseProduct: PurchaseProduct[];
-  wishListProduct: WishListProduct[];
   cartProduct: CartProduct[];
   customerOrderVendorProduct: CustomerOrderVendorProduct[];
 };
@@ -117,7 +116,7 @@ export type VendorUser = {
 export type Vendor = {
   vendorId: string;
   name: string;
-  image: string;
+  image?: string;
   email: string;
   isActive: boolean;
   createdAt: Date;
@@ -149,8 +148,8 @@ export type PurchaseProduct = {
   purchaseProductId: string;
   purchasePrice: number;
   quantity: number;
-  productId: string;
   productVariantId: string;
+  productId: string;
   productVariant: ProductVariant;
   product: Product;
   vendorPurchaseId: string;
@@ -168,10 +167,8 @@ export type VendorUserRole = {
 export type WishListProduct = {
   wishListProductId: string;
   productId: string;
-  productVariantId: string;
   customerId: string;
   product: Product;
-  productVariant: ProductVariant;
   customer: Customer;
 };
 
@@ -205,8 +202,8 @@ export type CustomerOrder = {
   deliveryPrice: number;
   deliveryAddress: string;
   deliveryContact: string;
-  customerId: string;
   isPrepaid: boolean;
+  customerId: string;
   createdAt: Date;
   updatedAt: Date;
   customer: Customer;
@@ -217,12 +214,12 @@ export type DeliveryOrder = {
   deliveryOrderId: string;
   deliveryOrderStatus: string;
   deliveryName: string;
-  startAt: Date;
-  endAt: Date;
   deliveryId: string;
   customerOrderVendorId: string;
-  delivery: Delivery;
+  delivery?: Delivery;
   customerOrderVendor: CustomerOrderVendor;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type CustomerOrderVendor = {
@@ -233,6 +230,7 @@ export type CustomerOrderVendor = {
   deliveryAddress: string;
   customerOrderId: string;
   customerId: string;
+  note?: string;
   vendor: Vendor;
   customerOrder: CustomerOrder;
   customer: Customer;
@@ -266,6 +264,7 @@ export type Product = {
   promotion: boolean;
   promotionPrice?: number;
   isActive: boolean;
+  isFeatured: boolean;
   vendorId: string;
   categoryId: string;
   vendor: Vendor;
