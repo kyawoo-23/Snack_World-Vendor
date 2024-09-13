@@ -21,3 +21,9 @@ export async function endDeliveryOrder(id: string) {
   res.isSuccess && revalidatePath("/order/[id]");
   return res;
 }
+
+export async function cancelOrder(id: string) {
+  const res = await post(`customer-order-vendor/${id}/cancel`);
+  res.isSuccess && revalidatePath("/order/[id]");
+  return res;
+}

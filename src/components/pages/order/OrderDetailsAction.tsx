@@ -4,6 +4,7 @@ import {
   acceptOrder,
   startDeliveryOrder,
   endDeliveryOrder,
+  cancelOrder,
 } from "@/actions/order.action";
 import { CustomerOrderVendor } from "@/prisma-types";
 import { CUSTOMER_ORDER_VENDOR_STATUS } from "@/utils/constants";
@@ -58,7 +59,18 @@ export default function OrderDetailsAction({ order }: Props) {
     setModalContent({
       title: "Rejecting Order!!",
       text: "Are you sure to reject this order?",
-      onOk: () => {},
+      onOk: () => {
+        startSubmission(async () => {
+          const res = await cancelOrder(order.customerOrderVendorId);
+          if (res.isSuccess) {
+            notification.success({ message: res.message });
+          } else {
+            console.log(res.message);
+            notification.error({ message: res.message });
+          }
+          setOpen(false);
+        });
+      },
     });
     setOpen(true);
   };

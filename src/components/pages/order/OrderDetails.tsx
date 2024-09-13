@@ -97,22 +97,28 @@ export default function OrderDetails({ order }: Props) {
     {
       key: "6",
       label:
-        order.customerOrderVendorStatus !== CUSTOMER_ORDER_VENDOR_STATUS.NEW
+        order.customerOrderVendorStatus !== CUSTOMER_ORDER_VENDOR_STATUS.NEW &&
+        order.customerOrderVendorStatus !==
+          CUSTOMER_ORDER_VENDOR_STATUS.CANCELLED
           ? "Delivery Status"
           : "",
       children: order.customerOrderVendorStatus !==
-        CUSTOMER_ORDER_VENDOR_STATUS.NEW && (
-        <Badge
-          status={
-            order.deliveryOrder[0].deliveryOrderStatus ===
-            DELIVERY_ORDER_STATUS.DELIVERED
-              ? "success"
-              : "processing"
-          }
-          color={getDeliveryStatus(order.deliveryOrder[0].deliveryOrderStatus)}
-          text={order.deliveryOrder[0].deliveryOrderStatus}
-        />
-      ),
+        CUSTOMER_ORDER_VENDOR_STATUS.NEW &&
+        order.customerOrderVendorStatus !==
+          CUSTOMER_ORDER_VENDOR_STATUS.CANCELLED && (
+          <Badge
+            status={
+              order.deliveryOrder[0].deliveryOrderStatus ===
+              DELIVERY_ORDER_STATUS.DELIVERED
+                ? "success"
+                : "processing"
+            }
+            color={getDeliveryStatus(
+              order.deliveryOrder[0].deliveryOrderStatus
+            )}
+            text={order.deliveryOrder[0].deliveryOrderStatus}
+          />
+        ),
     },
   ];
 
