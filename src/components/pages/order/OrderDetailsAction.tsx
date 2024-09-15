@@ -213,10 +213,6 @@ export default function OrderDetailsAction({ order }: Props) {
             Finish Delivery
           </Button>
         );
-      case CUSTOMER_ORDER_VENDOR_STATUS.DELIVERED:
-        return <button className='btn btn-primary'>Order Completed</button>;
-      case CUSTOMER_ORDER_VENDOR_STATUS.COMPLETED:
-        return <button className='btn btn-primary'>Order Completed</button>;
       default:
         return null;
     }
