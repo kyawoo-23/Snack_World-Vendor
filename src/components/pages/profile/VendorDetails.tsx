@@ -2,11 +2,9 @@
 
 import { updateVendorLogo } from "@/actions/account.action";
 import { Vendor } from "@/prisma-types";
-import { TVendorLogoUpdateRequest } from "@/utils/models/account.model";
 import { getImageKey } from "@/utils/shared";
-import { App, Form, FormProps, Input, Select, Flex, Button, Image } from "antd";
+import { App, Button, Image } from "antd";
 
-import { useRouter } from "next/navigation";
 import React, { useRef, useState, useTransition } from "react";
 
 type Props = {
@@ -24,7 +22,10 @@ export default function VendorDetails({ vendor }: Props) {
       const formData = new FormData();
       if (newImage) {
         formData.append("image", newImage);
-        const res = await updateVendorLogo(getImageKey(vendor.image), formData);
+        const res = await updateVendorLogo(
+          getImageKey(vendor.image || ""),
+          formData
+        );
         if (res.isSuccess) {
           notification.success({ message: res.message });
         } else {
