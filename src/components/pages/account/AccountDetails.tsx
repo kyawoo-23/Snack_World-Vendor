@@ -26,7 +26,6 @@ export default function AccountDetails({ account, roles }: Props) {
       if (res.isSuccess) {
         notification.success({ message: res.message });
         form.resetFields();
-        router.push(`/account?updated=${new Date().getTime()}`);
       } else {
         notification.error({ message: res.message });
       }

@@ -9,6 +9,7 @@ import {
   TProductUpdateRequest,
   TProductUpdateRequestVM,
 } from "@/utils/models/product.model";
+import { revalidatePath } from "next/cache";
 
 export const toggleProductStatus = async (
   id: string
@@ -127,6 +128,8 @@ export const createProduct = async (
       .map((res) => res.data?.url)
       .filter((url): url is string => url !== undefined),
   });
+
+  revalidatePath("product");
 
   return res;
 };

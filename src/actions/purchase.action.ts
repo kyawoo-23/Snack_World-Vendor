@@ -3,6 +3,7 @@
 import { post } from "@/utils/api";
 import { BaseResponse } from "@/utils/constants/response.type";
 import { TVendorPurchaseRequest } from "@/utils/models/purchase.model";
+import { revalidatePath } from "next/cache";
 
 export const vendorPurchaseProduct = async (
   data: TVendorPurchaseRequest
@@ -11,6 +12,8 @@ export const vendorPurchaseProduct = async (
     `vendor-purchase`,
     data
   );
+
+  revalidatePath("purchase");
 
   return res;
 };

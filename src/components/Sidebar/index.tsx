@@ -39,11 +39,14 @@ function getItem(
 const items: MenuItem[] = [
   getItem("Orders", "1", "/order", <FaRegFileLines />),
   getItem("Accounts", "2", "/account", <LuUsers2 />),
-  getItem("Products", "3", "/product", <LuBox />),
+  getItem("Products", "3", undefined, <LuBox />, [
+    getItem("List", "3.1", "/product"),
+    getItem("Stock", "3.2", "/product-stock"),
+  ]),
   getItem("Purchase", "4", "/purchase", <IoCartOutline />),
   getItem("Delivery", "5", "/delivery", <TbTruckDelivery />),
   getItem("Report", "6", undefined, <HiOutlineDocumentReport />, [
-    getItem("Sales", "6.1", "/sales"),
+    getItem("Sales", "6.1", "/sales-report"),
     getItem("Stock", "6.2", "/stock"),
   ]),
 ];
@@ -64,21 +67,30 @@ export default function SideBar() {
       items: MenuItem[],
       route: string
     ): string | undefined => {
+      let selectedKey: string | undefined;
+
       for (const item of items) {
-        if (item.link && route.startsWith(item.link)) {
-          return item.key as string;
+        // Check if the route matches exactly
+        if (item.link && route === item.link) {
+          return item.key as string; // Return immediately for an exact match
         }
+        // If the route starts with the link (for parent items)
+        if (item.link && route.startsWith(item.link)) {
+          selectedKey = item.key as string; // Store the parent match, but don't return yet
+        }
+        // Recursively check children for a more specific match
         if (item.children) {
           const matchingChildKey = findMatchingItem(item.children, route);
           if (matchingChildKey) {
-            return matchingChildKey;
+            return matchingChildKey; // Return child match if found
           }
         }
       }
-      return undefined;
+      return selectedKey;
     };
 
-    return [findMatchingItem(items, currentRoute) || "1"];
+    const selectedKey = findMatchingItem(items, currentRoute);
+    return selectedKey ? [selectedKey] : [];
   };
 
   if (!isClient) {

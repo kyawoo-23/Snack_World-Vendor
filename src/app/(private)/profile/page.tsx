@@ -10,14 +10,16 @@ export default async function page() {
   const { data: roles } = await get<VendorUserRole[]>("vendor-user-roles");
 
   return (
-    <div className='grid grid-cols-2 gap-4'>
+    <div className='grid grid-cols-3 gap-4'>
       <MainLayout title='Vendor'>
         <VendorDetails vendor={account.vendor} />
       </MainLayout>
 
-      <MainLayout title='Profile'>
-        <ProfileDetails account={account} roles={roles} />
-      </MainLayout>
+      <div className='col-span-2'>
+        <MainLayout title='Profile'>
+          <ProfileDetails account={account} roles={roles} />
+        </MainLayout>
+      </div>
     </div>
   );
 }

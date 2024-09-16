@@ -64,7 +64,7 @@ export default function ProductCreateForm({ categories, variants }: Props) {
       if (res.isSuccess) {
         notification.success({ message: res.message });
         form.resetFields();
-        router.push(`/product?updated=${new Date().getTime()}`);
+        router.push(`/product`);
       } else {
         notification.error({ message: res.message });
       }

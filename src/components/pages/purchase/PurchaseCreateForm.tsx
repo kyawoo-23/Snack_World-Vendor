@@ -197,7 +197,7 @@ export default function PurchaseCreateForm({ products }: Props) {
       if (res.isSuccess) {
         notification.success({ message: res.message });
         selectForm.resetFields();
-        router.push(`/purchase?updated=${new Date().getTime()}`);
+        router.push(`/purchase`);
       } else {
         notification.error({ message: res.message });
       }

@@ -9,6 +9,7 @@ import {
   TVendorLogoUpdateRequest,
 } from "@/utils/models/account.model";
 import { utapi } from "@/utils/library/uploadthing";
+import { revalidatePath } from "next/cache";
 
 export const updateVendorLogo = async (
   imageKey?: string,
@@ -53,7 +54,7 @@ export const updateAccount = async (
     `vendor-user/${id}`,
     data
   );
-
+  revalidatePath("vendor-user/profile");
   return res;
 };
 
