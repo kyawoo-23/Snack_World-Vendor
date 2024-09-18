@@ -1,9 +1,9 @@
 import { LoadingOutlined } from "@ant-design/icons";
-import { Flex, Spin } from "antd";
+import { Spin } from "antd";
 
 export default function Loading() {
   return (
-    <div className='h-screen grid place-items-center'>
+    <div className='h-[90vh] grid place-items-center'>
       <Spin indicator={<LoadingOutlined spin />} size='default' />
     </div>
   );
