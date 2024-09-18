@@ -47,7 +47,7 @@ const items: MenuItem[] = [
   getItem("Delivery", "5", "/delivery", <TbTruckDelivery />),
   getItem("Report", "6", undefined, <HiOutlineDocumentReport />, [
     getItem("Sales", "6.1", "/sales-report"),
-    getItem("Stock", "6.2", "/stock"),
+    getItem("Product Sales", "6.2", "/product-report"),
   ]),
 ];
 

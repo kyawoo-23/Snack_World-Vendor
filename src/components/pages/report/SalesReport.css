@@ -1,0 +1,10 @@
+.ant-statistic-content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.ant-statistic-title {
+  display: flex;
+  justify-content: flex-end;
+}
