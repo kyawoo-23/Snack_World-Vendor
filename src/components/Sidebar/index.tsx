@@ -5,7 +5,11 @@ import { Menu, MenuProps } from "antd";
 import Sider from "antd/es/layout/Sider";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { getLocalStorage, setLocalStorage } from "@/utils/shared/local-storage";
+import {
+  getLocalStorage,
+  getUserRole,
+  setLocalStorage,
+} from "@/utils/shared/local-storage";
 import { LOCAL_STORAGE } from "@/utils/constants/local-storage.type";
 import SkeletonButton from "antd/es/skeleton/Button";
 import { FaRegFileLines } from "react-icons/fa6";
@@ -14,6 +18,7 @@ import { TbTruckDelivery } from "react-icons/tb";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import Image from "next/image";
 import { IoCartOutline } from "react-icons/io5";
+import { ROLES } from "@/utils/constants";
 
 type MenuItem = Required<MenuProps>["items"][number] & {
   link?: string;
@@ -52,6 +57,8 @@ const items: MenuItem[] = [
 ];
 
 export default function SideBar() {
+  const role = getUserRole();
+
   const [isClient, setIsClient] = useState(false);
   const [collapsed, setCollapsed] = useState(
     getLocalStorage(LOCAL_STORAGE.IS_SIDEBAR_COLLAPSED) === "true"
@@ -61,6 +68,18 @@ export default function SideBar() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Filter items based on user role
+  const getFilteredItems = (): MenuItem[] => {
+    switch (role) {
+      case ROLES.ADMINSTRATOR:
+        return items;
+      case ROLES.STAFF:
+        return items.filter((item) => item.key === "1");
+      default:
+        return [];
+    }
+  };
 
   const getSelectedKeys = () => {
     const findMatchingItem = (
@@ -140,7 +159,7 @@ export default function SideBar() {
         theme='dark'
         selectedKeys={getSelectedKeys()}
         mode='inline'
-        items={items}
+        items={getFilteredItems()}
       />
     </Sider>
   );

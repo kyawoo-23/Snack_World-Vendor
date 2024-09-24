@@ -1,3 +1,4 @@
+import { ROLES } from "@/utils/constants";
 import { LOCAL_STORAGE } from "@/utils/constants/local-storage.type";
 
 export const setLocalStorage = (key: LOCAL_STORAGE, value: string) => {
@@ -13,4 +14,8 @@ export const getLocalStorage = (key: LOCAL_STORAGE) => {
 
 export const removeLocalStorage = (key: LOCAL_STORAGE) => {
   localStorage.removeItem(key);
+};
+
+export const getUserRole = (): ROLES | undefined => {
+  return JSON.parse(getLocalStorage(LOCAL_STORAGE.USER) || "{}")?.role;
 };

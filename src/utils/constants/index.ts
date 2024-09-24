@@ -32,3 +32,8 @@ export enum DELIVERY_STATUS {
   DELIVERING = "DELIVERING",
   DELIVERED = "DELIVERED",
 }
+
+export enum ROLES {
+  STAFF = "Vendor Operation Staff",
+  ADMINSTRATOR = "Vendor Administrator",
+}

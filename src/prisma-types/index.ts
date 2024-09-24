@@ -75,7 +75,7 @@ export type Delivery = {
   deliveryName: string;
   createdAt: Date;
   updatedAt: Date;
-  completeAt: Date;
+  completeAt?: Date;
   adminId: string;
   admin: Admin;
   deliveryOrder: DeliveryOrder[];
@@ -125,6 +125,15 @@ export type Vendor = {
   customerOrderVendor: CustomerOrderVendor[];
   announcementVendor: AnnouncementVendor[];
   vendorUser: VendorUser[];
+  remark: VendorRemark[];
+};
+
+export type VendorRemark = {
+  vendorRemarkId: string;
+  content: string;
+  vendorId: string;
+  vendor: Vendor;
+  createdAt: Date;
 };
 
 export type Customer = {
@@ -214,9 +223,9 @@ export type DeliveryOrder = {
   deliveryOrderId: string;
   deliveryOrderStatus: string;
   deliveryName: string;
-  deliveryId: string;
+  type: string;
+  deliveryId?: string;
   customerOrderVendorId: string;
-  type: "SELF" | "REQUEST";
   delivery?: Delivery;
   customerOrderVendor: CustomerOrderVendor;
   createdAt: Date;
