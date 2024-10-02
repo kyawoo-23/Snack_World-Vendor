@@ -19,6 +19,7 @@ import { HiOutlineDocumentReport } from "react-icons/hi";
 import Image from "next/image";
 import { IoCartOutline } from "react-icons/io5";
 import { ROLES } from "@/utils/constants";
+import Logo from "@/app/assets/logo/SNACK_WORLD_DARK.png";
 
 type MenuItem = Required<MenuProps>["items"][number] & {
   link?: string;
@@ -147,7 +148,7 @@ export default function SideBar() {
       <figure className='flex justify-center w-full'>
         <Image
           className='object-cover'
-          src='/assets/logo/SNACK_WORLD_DARK.png'
+          src={Logo}
           alt='SNACK WORLD'
           width={70}
           height={70}
