@@ -50,10 +50,9 @@ const items: MenuItem[] = [
     getItem("Stock", "3.2", "/product-stock"),
   ]),
   getItem("Purchase", "4", "/purchase", <IoCartOutline />),
-  getItem("Delivery", "5", "/delivery", <TbTruckDelivery />),
-  getItem("Report", "6", undefined, <HiOutlineDocumentReport />, [
-    getItem("Sales", "6.1", "/sales-report"),
-    getItem("Product Sales", "6.2", "/product-report"),
+  getItem("Report", "5", undefined, <HiOutlineDocumentReport />, [
+    getItem("Sales", "5.1", "/sales-report"),
+    getItem("Product Sales", "5.2", "/product-report"),
   ]),
 ];
 
