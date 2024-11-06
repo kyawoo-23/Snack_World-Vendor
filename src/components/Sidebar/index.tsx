@@ -86,26 +86,20 @@ export default function SideBar() {
       items: MenuItem[],
       route: string
     ): string | undefined => {
-      let selectedKey: string | undefined;
-
       for (const item of items) {
-        // Check if the route matches exactly
+        // Check if the route matches exactly with the item link
         if (item.link && route === item.link) {
-          return item.key as string; // Return immediately for an exact match
+          return item.key as string;
         }
-        // If the route starts with the link (for parent items)
-        if (item.link && route.startsWith(item.link)) {
-          selectedKey = item.key as string; // Store the parent match, but don't return yet
-        }
-        // Recursively check children for a more specific match
+        // Recursively check children for an exact match
         if (item.children) {
           const matchingChildKey = findMatchingItem(item.children, route);
           if (matchingChildKey) {
-            return matchingChildKey; // Return child match if found
+            return matchingChildKey;
           }
         }
       }
-      return selectedKey;
+      return undefined;
     };
 
     const selectedKey = findMatchingItem(items, currentRoute);

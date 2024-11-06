@@ -9,13 +9,18 @@ import {
   App,
   AutoComplete,
   Button,
-  Flex,
+  Card,
+  Col,
+  Divider,
   Form,
-  FormProps,
   Input,
+  Row,
   Select,
   Space,
   Tag,
+  Spin,
+  notification,
+  Typography,
 } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -24,41 +29,37 @@ import { MdOutlineInbox } from "react-icons/md";
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
 
 const Title: React.FC<Readonly<{ title?: string }>> = (props) => (
-  <Flex align='center' justify='space-between'>
-    {props.title}
-  </Flex>
+  <span>{props.title}</span>
 );
 
 const renderProductItem = (product: Product) => ({
   value: product.name,
   key: product.productId,
   label: (
-    <Flex align='center' justify='space-between'>
-      <div className='flex items-center gap-2'>
-        <Image
-          src={product.primaryImage}
-          alt={product.name}
-          width={20}
-          height={20}
-        />
-        {product.name}
-      </div>
-      <span className='flex items-center gap-1'>
-        <RiMoneyDollarCircleLine /> {product.price}
-      </span>
-    </Flex>
+    <Space>
+      <Image
+        src={product.primaryImage}
+        alt={product.name}
+        width={20}
+        height={20}
+      />
+      <span>{product.name}</span>
+      <Divider type='vertical' />
+      <Typography.Text type='secondary'>Selling price:</Typography.Text>
+      <Tag color='green'>${product.price}</Tag>
+    </Space>
   ),
 });
 
 const renderFlavorItem = (variant: ProductVariant) => ({
   value: variant.productVariantId,
   label: (
-    <Flex align='center' justify='space-between'>
+    <Space>
       {variant.variant.name}
-      <span className='flex items-center gap-1'>
-        <MdOutlineInbox /> {variant.stock}
-      </span>
-    </Flex>
+      <Divider type='vertical' />
+      <Typography.Text type='secondary'>Stock:</Typography.Text>
+      <Tag color='blue'>{variant.stock}</Tag>
+    </Space>
   ),
 });
 
@@ -68,14 +69,10 @@ type Props = {
 
 export default function PurchaseCreateForm({ products }: Props) {
   const router = useRouter();
-  const { notification } = App.useApp();
   const [isPending, startSubmission] = useTransition();
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [variantsOptions, setVariantsOptions] = useState<
-    {
-      label: JSX.Element;
-      value: string;
-    }[]
+    { label: JSX.Element; value: string }[]
   >([]);
   const [itemsToPurchase, setItemsToPurchase] = useState<
     {
@@ -95,11 +92,9 @@ export default function PurchaseCreateForm({ products }: Props) {
     return products.reduce(
       (acc, product) => {
         const { category } = product;
-
         if (!acc[category.name]) {
           acc[category.name] = [];
         }
-
         acc[category.name].push(product);
         return acc;
       },
@@ -130,10 +125,7 @@ export default function PurchaseCreateForm({ products }: Props) {
     }
   }, [products, selectForm, selectedProduct]);
 
-  const addItemsToPurchase: FormProps<{
-    product: string;
-    variant: string;
-  }>["onFinish"] = (values) => {
+  const addItemsToPurchase = (values: { product: string; variant: string }) => {
     const selectedProduct = products.find((product) =>
       product.productVariant.some(
         (variant) => variant.productVariantId === values.variant
@@ -152,7 +144,6 @@ export default function PurchaseCreateForm({ products }: Props) {
           );
 
           if (existingItemIndex !== -1) {
-            // Product with the same variant already exists, update the quantity
             const updatedItems = [...prevItems];
             updatedItems[existingItemIndex] = {
               ...updatedItems[existingItemIndex],
@@ -160,7 +151,6 @@ export default function PurchaseCreateForm({ products }: Props) {
             };
             return updatedItems;
           } else {
-            // Product does not exist, add a new one
             return [
               ...prevItems,
               {
@@ -192,7 +182,6 @@ export default function PurchaseCreateForm({ products }: Props) {
         })),
       };
 
-      console.log("Purchasing items", request);
       const res = await vendorPurchaseProduct(request);
       if (res.isSuccess) {
         notification.success({ message: res.message });
@@ -205,12 +194,11 @@ export default function PurchaseCreateForm({ products }: Props) {
   };
 
   return (
-    <>
-      <Form form={selectForm} layout='vertical' onFinish={addItemsToPurchase}>
-        <div className='flex justify-end items-center'>
-          <div className='flex flex-col gap-2'>
-            <h3 className='text-md font-medium'>Add product to purchase:</h3>
-            <Space.Compact>
+    <div>
+      <Card title='Add Items to the Purchase List' style={{ marginBottom: 20 }}>
+        <Form form={selectForm} layout='vertical' onFinish={addItemsToPurchase}>
+          <Row gutter={16}>
+            <Col span={8}>
               <Form.Item
                 name='product'
                 rules={[
@@ -218,15 +206,14 @@ export default function PurchaseCreateForm({ products }: Props) {
                 ]}
               >
                 <AutoComplete
-                  popupClassName='certain-category-search-dropdown'
-                  popupMatchSelectWidth={500}
-                  style={{ width: 250 }}
                   options={productOptions}
                   onSelect={handleSelect}
-                >
-                  <Input placeholder='Search product' />
-                </AutoComplete>
+                  placeholder='Search product'
+                  style={{ width: "100%" }}
+                />
               </Form.Item>
+            </Col>
+            <Col span={8}>
               <Form.Item
                 name='variant'
                 rules={[
@@ -234,83 +221,96 @@ export default function PurchaseCreateForm({ products }: Props) {
                 ]}
               >
                 <Select
-                  placeholder='Select variant'
-                  style={{ width: 200 }}
                   options={variantsOptions}
+                  placeholder='Select variant'
+                  style={{ width: "100%" }}
+                  notFoundContent={isPending ? <Spin size='small' /> : null}
                 />
               </Form.Item>
+            </Col>
+            <Col span={8}>
               <Form.Item>
                 <Button type='primary' htmlType='submit'>
                   Add
                 </Button>
               </Form.Item>
-            </Space.Compact>
-          </div>
-        </div>
-      </Form>
+            </Col>
+          </Row>
+        </Form>
+      </Card>
 
       {itemsToPurchase.map((product, idx) => (
-        <div key={idx} className='flex items-center justify-between gap-3 mb-3'>
-          <div className='flex items-center gap-2'>
-            <Image
-              className='rounded object-cover'
-              src={product.image}
-              alt={product.name}
-              width={60}
-              height={60}
-            />
-            {product.name} -
-            <Tag color={product.variantColor}>{product.variantName}</Tag>
-          </div>
-          <div className='flex items-center gap-2'>
-            <Input
-              min={1}
-              type='number'
-              placeholder='Quantity'
-              prefix={<MdOutlineInbox />}
-              value={product.quantity}
-              onChange={(e) => {
-                setItemsToPurchase((prevItems) => {
-                  const newItems = [...prevItems];
-                  newItems[idx].quantity = Number(e.target.value);
-                  return newItems;
-                });
-              }}
-            />
-            <Input
-              min={0}
-              type='number'
-              placeholder='Purchasing price'
-              prefix={<RiMoneyDollarCircleLine />}
-              value={product.price}
-              onChange={(e) => {
-                setItemsToPurchase((prevItems) => {
-                  const newItems = [...prevItems];
-                  newItems[idx].price = Number(e.target.value);
-                  return newItems;
-                });
-              }}
-            />
-          </div>
-        </div>
+        <Card key={idx} style={{ marginBottom: 16 }}>
+          <Row gutter={16} align='middle'>
+            <Col span={4}>
+              <Image
+                src={product.image}
+                alt={product.name}
+                width={60}
+                height={60}
+              />
+            </Col>
+            <Col span={8}>
+              <strong>{product.name}</strong> -{" "}
+              <Tag color={product.variantColor}>{product.variantName}</Tag>
+            </Col>
+            <Col span={4}>
+              <Form.Item label='Purchasing Quantity'>
+                <Input
+                  min={1}
+                  type='number'
+                  placeholder='Quantity'
+                  value={product.quantity}
+                  onChange={(e) => {
+                    const newQuantity = Number(e.target.value);
+                    setItemsToPurchase((prev) =>
+                      prev.map((item, i) =>
+                        i === idx ? { ...item, quantity: newQuantity } : item
+                      )
+                    );
+                  }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={4}>
+              <Form.Item label='Purchasing Price'>
+                <Input
+                  min={0}
+                  type='number'
+                  placeholder='Price'
+                  value={product.price}
+                  onChange={(e) => {
+                    const newPrice = Number(e.target.value);
+                    setItemsToPurchase((prev) =>
+                      prev.map((item, i) =>
+                        i === idx ? { ...item, price: newPrice } : item
+                      )
+                    );
+                  }}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Card>
       ))}
 
       {itemsToPurchase.length > 0 && (
-        <div className='w-full bg-white rounded-md flex items-center justify-end'>
-          <Button
-            type='primary'
-            size='large'
-            loading={isPending}
-            onClick={handlePurchase}
-          >
+        <div style={{ textAlign: "right", marginTop: 20 }}>
+          <Button type='primary' onClick={handlePurchase}>
             Purchase $
             {itemsToPurchase.reduce(
               (acc, item) => acc + item.price * item.quantity,
               0
             )}
           </Button>
+          <Button
+            style={{ marginLeft: 8 }}
+            onClick={() => setItemsToPurchase([])}
+          >
+            Clear All
+          </Button>
         </div>
       )}
-    </>
+    </div>
   );
 }
