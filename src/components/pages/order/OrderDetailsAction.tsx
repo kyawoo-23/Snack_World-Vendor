@@ -205,8 +205,6 @@ export default function OrderDetailsAction({ order }: Props) {
             showIcon
           />
         );
-      case CUSTOMER_ORDER_VENDOR_STATUS.CANCELLED:
-        return <button className='btn btn-primary'>Order Prepared</button>;
       case CUSTOMER_ORDER_VENDOR_STATUS.DELIVERING:
         return (
           <Button type='primary' onClick={endDelivery}>
